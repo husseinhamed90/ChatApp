@@ -124,37 +124,6 @@ class AppCubit extends Cubit<AppCubitStates> {
     }
   }
 
-  Future deleteUserfromauth(String email, String password) async {
-    try {
-      FirebaseAuth _auth = FirebaseAuth.instance;
-      User user = _auth.currentUser;
-      AuthCredential credentials =
-      EmailAuthProvider.credential(email: email, password: password);
-      await user.reauthenticateWithCredential(credentials).then((value) {
-        value.user.delete();
-      });
-    } catch (e) {}
-  }
-
-  Future UpdateUserfromauth(String password, TextEditingController newusername,TextEditingController newpassword) async {
-    try {
-      FirebaseAuth _auth = FirebaseAuth.instance;
-      User user =  _auth.currentUser;
-
-      AuthCredential credentials = EmailAuthProvider.credential(email: user.email, password: password + "steponeapp");
-      await user.reauthenticateWithCredential(credentials).then((value) async {
-        await value.user.updateEmail('${newusername.text.replaceAll(' ', '')}@stepone.com').then((valueeee) {
-          value.user.updatePassword("${newpassword.text}steponeapp").then((value) {
-            getusers().then((value) {
-              emit(userupdatedsuccfully());
-            });
-          }).onError((error, stackTrace) {
-          });
-        });
-      });
-    } catch (e) {}
-  }
-
   Future<void> getusers() async {
     users = [];
     emit(loaddatafromfirebase());
