@@ -1,7 +1,6 @@
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
-import 'package:chatapp/Screens/userslist.dart';
 
 import '../MainCubit/AppCubit.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +21,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
       // TODO: implement initState
       WidgetsBinding.instance.addObserver(this);
       super.initState();
-      //username.text=widget.olduser.name;
-      //password.text=widget.olduser.password;
-
     }
     static const channel = MethodChannel('service');
     OpenService() async {
