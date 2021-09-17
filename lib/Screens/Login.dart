@@ -1,7 +1,6 @@
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
-
 import '../MainCubit/AppCubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,23 +13,13 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> with WidgetsBindingObserver{
 
-
-
   @override
     void initState() {
       // TODO: implement initState
       WidgetsBinding.instance.addObserver(this);
       super.initState();
     }
-    static const channel = MethodChannel('service');
-    OpenService() async {
 
-      try {
-        //await channel.invokeMethod('openservice',{"id":AppCubit.get(context).currentuser.location});
-      } on PlatformException catch (ex) {
-        print(ex.message);
-      }
-  }
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
   bool issecure=true;
@@ -41,14 +30,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
 
          body:  BlocConsumer<AppCubit,AppCubitStates>(
            listener: (context, state) async {
-             // if(state is userisadminstate){
-             //   OpenService();
-             //   Navigator.push(context, MaterialPageRoute(builder: (context) => AddNewrepresentative(state.id),));
-             // }
-             // else
              if(state is GetUserIDSate){
-               //OpenService();
-               //getsnackbar(context,"Done");
                Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
              }
              else if(state is noadmindatafound){
