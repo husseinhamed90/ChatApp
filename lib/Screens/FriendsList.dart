@@ -133,10 +133,10 @@ class FriendsList extends StatelessWidget {
                                           appCubit.setCurrentConversation(conversation.fromJson(snapshot.data[index].docs[0].data()));
 
                                           if(snapshot.data[index].docs[0]['secondPerson']['id']==appCubit.currentuser.id){
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => TestStream( snapshot.data[index].docs[0]['firstPerson']['id'], snapshot.data[index].docs[0]['firstPerson']['name'],)));
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[index].docs[0]['firstPerson']['id'], snapshot.data[index].docs[0]['firstPerson']['name'],)));
                                           }
                                           else{
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => TestStream( snapshot.data[index].docs[0]['secondPerson']['id'], snapshot.data[index].docs[0]['secondPerson']['name'],)));
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[index].docs[0]['secondPerson']['id'], snapshot.data[index].docs[0]['secondPerson']['name'],)));
                                           }
                                         },
                                         child: Container(
@@ -220,7 +220,7 @@ class FriendsList extends StatelessWidget {
                         return InkWell(
                           onTap: () {
                             appCubit.setChosenUser(appCubit.searchlist[index]);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => TestStream(appCubit.chosenUser.id,appCubit.chosenUser.name),));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(appCubit.chosenUser.id,appCubit.chosenUser.name),));
                             appCubit.changesearchbarState();
                           },
                           child: AutoSizeText(

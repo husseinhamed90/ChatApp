@@ -14,10 +14,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-class TestStream extends StatelessWidget {
+class ChatScreen extends StatelessWidget {
   String receiver;
   String name;
-  TestStream(this.receiver,this.name);
+  ChatScreen(this.receiver,this.name);
   final _controller = ScrollController();
 
   TextEditingController controller=new TextEditingController();
