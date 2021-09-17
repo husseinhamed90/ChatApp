@@ -39,34 +39,37 @@ class _AppbarState extends State<CustomAppbar> {
   Widget build(BuildContext context) {
     return AppBar(
       actions: [
-        InkWell(onTap: () {
-          Navigator.pop(context);
-        },child: Container(child: Image.asset("assets/backbutton.jpg",),margin: EdgeInsets.only(left: 10,top: 10),)),
+        Container(
+          child: GestureDetector(onTap: () {
+
+            showDialog(context: context, builder: (context) {
+              return AlertDialog(
+                content: Container(
+                  child: Text("هل تريد اغلاق التطبيق ؟"),
+                ),
+                actions: [
+
+                  TextButton(onPressed: () {
+                    Navigator.pop(context);
+                    updateuserstatus('false');
+                  }, child: Text("نعم")),
+                  TextButton(onPressed: () => Navigator.pop(context), child: Text("لا")),
+                ],
+              );
+            },
+            );
+          },child: Container(child: Icon(Icons.close,size: 30,color: Colors.blue,),margin: EdgeInsets.only(right: 10),)),
+        ),
+
 
       ],
-      backgroundColor: Colors.white,
+
+      backgroundColor: Color(0xffE5F7FF),
       elevation: 0,
-      title:   AutoSizeText(widget.title,style: TextStyle(fontSize: 25,color: Colors.black),maxLines: 1,),
-      leading:  Container(
-        child: GestureDetector(onTap: () {
-
-          showDialog(context: context, builder: (context) {
-            return AlertDialog(
-              content: Container(
-                child: Text("هل تريد اغلاق التطبيق ؟"),
-              ),
-              actions: [
-
-                TextButton(onPressed: () {
-                  Navigator.pop(context);
-                  updateuserstatus('false');
-                }, child: Text("نعم")),
-                TextButton(onPressed: () => Navigator.pop(context), child: Text("لا")),
-              ],
-            );
-          },
-          );
-        },child: Container(child: Image.asset("assets/exit.jpg",),margin: EdgeInsets.only(right: 10,top: 5),)),
+      title:   AutoSizeText(widget.title,style: TextStyle(fontSize: 20,color: Colors.blue),maxLines: 1,),
+      leading:    InkWell(onTap: () {
+        Navigator.pop(context);
+      },child: Container(child: Icon(Icons.arrow_back_rounded,size: 30,color: Colors.blue,),)
       ),
       centerTitle: true,
 

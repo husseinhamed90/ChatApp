@@ -45,3 +45,14 @@ class adminuser extends AppCubitStates{}
 
 class validuser extends AppCubitStates{}
 
+class SearchedListCome extends AppCubitStates{}
+
+class searchbarresetState extends AppCubitStates{}
+
+class newconversationAddedSuccssefully extends AppCubitStates{}
+
+class getConversationsDetailsState extends AppCubitStates{}
+
+class searchlistisNowEmpty extends AppCubitStates{}
+
+class setUpdatedUser extends AppCubitStates{}

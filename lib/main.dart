@@ -1,4 +1,6 @@
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
+import 'package:chatapp/Screens/FriendsList.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'MainCubit/AppCubit.dart';
 import 'Screens/Login.dart';
@@ -34,9 +36,14 @@ class MyApp extends StatelessWidget {
         builder:(context, state) => ScreenUtilInit(
           designSize: Size(1080,2280),
           builder: () => GetMaterialApp(
+            theme: ThemeData(
+              textTheme: GoogleFonts.tajawalTextTheme(
+                Theme.of(context).textTheme,
+              ),
+            ),
             home: Login(),
             debugShowCheckedModeBanner: false,
-            locale: Locale("ar"),
+            //locale: Locale("ar"),
           ),
         ),
       ),

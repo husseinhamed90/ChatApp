@@ -8,6 +8,9 @@ class user{
   String isfirsttime;
   String isonline;
   String location;
+  String date;
+  List<dynamic>conversationsIDs=[];
+  String imagepath="https://www.leisureopportunities.co.uk/images/imagesX/HIGH799405_746782.jpg";
 
 
 
@@ -20,19 +23,27 @@ class user{
     usertype =json['usertype'];
     id=json['id'];
     isfirsttime=json['isfirsttime'];
+    imagepath =json['image'];
+    conversationsIDs=json['conversationsIDs'];
     isonline=json['isonline'];
-    location=json['location'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = this.name;
+    data['date']=this.date;
+    List<dynamic>map=[];
+    conversationsIDs.forEach((element) {
+      map.add(element);
+    });
+    data['conversationsIDs']=map;
+   // data['conversationsIDs']=this.conversationsIDs;
     data['password'] = this.password;
     data['usertype']=this.usertype;
     data['id']=this.id;
+    data['image']=this.imagepath;
     data['isfirsttime']=this.isfirsttime;
     data['isonline']=this.isonline;
-    data['location']=this.location;
     return data;
   }
 

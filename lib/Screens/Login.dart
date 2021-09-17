@@ -1,4 +1,5 @@
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
+import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
 import 'package:chatapp/Screens/userslist.dart';
 
@@ -41,21 +42,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
   Widget build(BuildContext context) {
    // Scale.setup(context, Size(1280, 720));
        return Scaffold(
-         appBar: PreferredSize(
-           preferredSize: Size.fromHeight(70),
-           child: Padding(
-             padding: const EdgeInsets.only(top:10),
-             child: AppBar(
-               centerTitle: true,
-               backgroundColor: Colors.white,
-               elevation: 0,
-               leading:  InkWell(onTap: () {
-                 //showdialogForExit(context);
-               },child: Container(child: Image.asset("assets/exit.jpg",),margin: EdgeInsets.only(right: 10,top: 5),)
-               ),
-             ),
-           ),
-         ),
+
          body:  BlocConsumer<AppCubit,AppCubitStates>(
            listener: (context, state) async {
              // if(state is userisadminstate){
@@ -64,10 +51,9 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
              // }
              // else
              if(state is GetUserIDSate){
-               print("dsfsdfsdfsdfsdfdsfsdf");
                //OpenService();
                //getsnackbar(context,"Done");
-               Navigator.push(context, MaterialPageRoute(builder: (context) => Userslist()));
+               Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
              }
              else if(state is noadmindatafound){
                getsnackbar(context,"لا توجد بيانات للادمن حتي الان");
@@ -91,7 +77,11 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
              }
              else{
                return Container(
-                 color: Colors.white,
+                 decoration: BoxDecoration(
+                     gradient: LinearGradient(
+                         begin: Alignment.topCenter,
+                         end: Alignment.bottomCenter,
+                         colors: [Color(0xffE5F7FF), Color(0xffFFFFFF)])),
                  child: Center(
                    child: SingleChildScrollView(
                      child: Column(
@@ -133,9 +123,9 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                            ),
                          ),
                          SizedBox(height: 30,),
-                         TextButton(onPressed: (){
+                         TextButton(onPressed: ()async{
                            //v.getnumofnews(value);
-                           v.loginwithusernameandpassword(username.text,password.text);
+                          await v.loginwithusernameandpassword(username.text,password.text);
                          }, child: Text("تسجيل دخول",style: TextStyle(
                              fontSize: 20
                          ),)),

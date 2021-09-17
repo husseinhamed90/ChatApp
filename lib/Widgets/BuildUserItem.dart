@@ -20,7 +20,7 @@ class _BuildUserItemState extends State<BuildUserItem> {
     return LayoutBuilder(
       builder: (context, constraints) => (widget.currentuser.id!=AppCubit.get(context).currentuser.id)?InkWell(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => TestStream(widget.currentuser.id,widget.currentuser.name),));
+          //Navigator.push(context, MaterialPageRoute(builder: (context) => TestStream(widget.currentuser.id,widget.currentuser.name),));
         },
         child: Container(
           height: 50,

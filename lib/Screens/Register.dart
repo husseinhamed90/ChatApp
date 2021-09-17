@@ -50,8 +50,19 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
               },
               builder: (context, state) {
                 AppCubit v =AppCubit.get(context);
+                if(state is loaddatafromfirebase){
+                  return Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
                 return Container(
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xffE5F7FF), Color(0xffFFFFFF)])),
                   child: Center(
                     child: SingleChildScrollView(
                       child: Column(
