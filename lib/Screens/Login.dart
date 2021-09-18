@@ -108,7 +108,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                              fontSize: 20
                          ),)),
                          TextButton(onPressed: (){
-                           //v.getnumofnews(value);
                            Navigator.push(context, MaterialPageRoute(builder: (context) => Register(),));
                          }, child: Text("عمل اكونت",style: TextStyle(
                              fontSize: 20

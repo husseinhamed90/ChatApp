@@ -56,3 +56,5 @@ class getConversationsDetailsState extends AppCubitStates{}
 class searchlistisNowEmpty extends AppCubitStates{}
 
 class setUpdatedUser extends AppCubitStates{}
+
+class ScrollToEndState extends AppCubitStates{}

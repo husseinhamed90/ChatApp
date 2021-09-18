@@ -5,7 +5,11 @@ import 'package:chatapp/MainCubit/AppCubitStates.dart';
 import 'package:chatapp/Models/Conversation.dart';
 import 'package:chatapp/Models/Massage.dart';
 import 'package:date_format/date_format.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../MainCubit/AppCubit.dart';
 import '../Widgets/CustomAppBar.dart';
@@ -18,7 +22,9 @@ class ChatScreen extends StatelessWidget {
   String receiver;
   String name;
   ChatScreen(this.receiver,this.name);
-  final _controller = ScrollController();
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
   TextEditingController controller=new TextEditingController();
   @override
@@ -47,43 +53,53 @@ class ChatScreen extends StatelessWidget {
                 Expanded(
                   child: StreamBuilder(
                       stream: CombineLatestStream.list([
+
                         if(appCubit.currentConversation!=null)
-                          FirebaseFirestore.instance.collection("Conversations").doc(appCubit.currentConversation.conversationId).snapshots()
+                           FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).snapshots()
                       ]),
                       builder: (context, snapshot) {
-                        if(_controller.hasClients){
-                          _controller.jumpTo(_controller.position.maxScrollExtent);
-
-                        }
-
                         if(snapshot.hasData){
+                          DocumentSnapshot conversation=snapshot.data[0];
+                          List<Massage>messages=getListOfMessages(conversation);
 
-                          DocumentSnapshot sender=snapshot.data[0];
-                          List<Massage>messages=[];
-                          sender.data()["Messages"].forEach((element){
-                             messages.add(Massage.fromJson(element));
-                          });
+                          if(itemScrollController.isAttached&&messages.length>1){
 
-
-                          return ListView.builder(
-                            controller: _controller,
+                            itemScrollController.scrollTo(
+                                index: messages.length-1,
+                                duration: Duration(milliseconds: 100),
+                                curve: Curves.linear);
+                          }
+                          return ScrollablePositionedList.builder(
+                            itemScrollController: itemScrollController,
                             itemBuilder: (context, index) {
+
                               messages.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
                               return Container(
+                                padding: EdgeInsets.all(5),
                                 child: Column(
                                   children: [
                                     Align(
                                       child: Text("${DateTime.fromMillisecondsSinceEpoch(int.parse(messages[index].timeStamp))}",style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 12,
                                       ),),
                                       alignment: Alignment.center,
                                     ),
+                                    SizedBox(height: 5,),
                                     Align(
-                                      child:  Card(child: Text(messages[index].massage,style: TextStyle(
-                                        fontSize: 20,
-                                      ),),),
                                       alignment: (messages[index].senderId==AppCubit.get(context).currentuser.id)?Alignment.centerRight:Alignment.centerLeft,
+                                      child: Container(
+                                        padding: EdgeInsets.all(7),
+                                        decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                                        ),
+                                        child: Text(messages[index].massage,style: TextStyle(
+                                        fontSize: 14,color: Colors.white,fontWeight: FontWeight.w600
+                                          ),),
+                                      ),
                                     ),
+                                    SizedBox(height: 5,),
+
                                   ],
                                 ),
                               );
@@ -102,28 +118,21 @@ class ChatScreen extends StatelessWidget {
                 Row(
                   children: [
                     Container(
+                      height: 50,
                       width: (MediaQuery.of(context).size.width-20)*0.8,
                       child: TextFormField(
                         controller: controller,
-                        onTap: () {
-                          _controller.jumpTo(_controller.position.maxScrollExtent);
-                        },
                         onChanged: (value) async{
 
                           if(value.isEmpty==false){
                             if(appCubit.currentConversation!=null)
-                              await FirebaseFirestore.instance.collection("Conversations").doc(appCubit.currentConversation.conversationId).update({"istyping": "true"});
+                              await FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).update({"istyping": "true"});
                           }
                           else{
                             if(appCubit.currentConversation!=null)
-                              await FirebaseFirestore.instance.collection("Conversations").doc(appCubit.currentConversation.conversationId).update({"istyping": "false"});
+                              await FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).update({"istyping": "false"});
                           }
                         },
-                        onFieldSubmitted: (value) async{
-                        _controller.jumpTo(_controller.position.maxScrollExtent);
-                        if(controller.text!="") {
-                          await appCubit.sendMessage(controller.text, appCubit);
-                        }},
                         decoration: InputDecoration(
                           labelText: "Enter Message",
                           filled: true,
@@ -134,15 +143,16 @@ class ChatScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    SizedBox(width: (MediaQuery.of(context).size.width-20)*0.05,),
                     Container(
+                      height: 50,
                       alignment: Alignment.centerRight,
-                      width: (MediaQuery.of(context).size.width-20)*0.2,
+                      width: (MediaQuery.of(context).size.width-20)*0.15,
                       child: FloatingActionButton(onPressed: () async {
-                       _controller.jumpTo(_controller.position.maxScrollExtent);
                         if(controller.text!=""){
                           await appCubit.sendMessage(controller.text,appCubit);
                         }
-                      },child: Icon(Icons.send,),backgroundColor: Colors.blue,),
+                      },child: Icon(Icons.send,size:15,),backgroundColor: Colors.blue,),
                     )
                   ],
                 ),
@@ -152,5 +162,13 @@ class ChatScreen extends StatelessWidget {
         },
       )
     );
+  }
+
+  List<Massage> getListOfMessages(DocumentSnapshot sender ) {
+    List<Massage> messages=[];
+    sender.data()["Messages"].forEach((element){
+       messages.add(Massage.fromJson(element));
+    });
+    return messages;
   }
 }

@@ -4,9 +4,7 @@ import 'package:chatapp/Models/Massage.dart';
 import 'package:chatapp/Models/User.dart';
 
 class conversation {
-  String conversationId;
   String lastMassage="now you can chat with this person";
-  String id;
   user firstPerson;
   user secondPerson;
   String istyping="false";
@@ -15,14 +13,11 @@ class conversation {
     lastMassage = json['lastMassage'];
     firstPerson =user.fromJson(json['firstPerson']);
     secondPerson =user.fromJson(json['secondPerson']);
-    id=json['id'];
     List<Massage>map=[];
     json['Messages'].forEach((element) {
       map.add(Massage.fromJson(element));
     });
-    conversationId=json['conversationsID'];
     massages=map;
-  //  massages=json['Messages'].map((e) => Massage.fromJson(e));
     istyping=json['istyping'];
   }
 
@@ -35,8 +30,6 @@ class conversation {
     data['secondPerson']=secondPerson.toJson();
     data['lastMassage']=lastMassage;
     data['istyping']=istyping;
-    data['id']=id;
-    data['conversationsID']=conversationId;
     List<Map<String,dynamic>>map=[{}];
     massages.forEach((element) {
       map.add(element.toJson());

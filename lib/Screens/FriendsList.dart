@@ -109,109 +109,97 @@ class FriendsList extends StatelessWidget {
                     child: (!appCubit.issearch)?
 
                     StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).snapshots(),
+                      stream: CombineLatestStream.list(
+                          [
+                            FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").snapshots()
+                          ]
+                      ),
                       builder: (context, snapshot) {
-                        DocumentSnapshot s =snapshot.data;
+
 
                         if(snapshot.hasData){
-                          return StreamBuilder(
-                            stream: CombineLatestStream.list(
-                                [
-                                  if(s.data()['conversationsIDs'].length>0)
-                                    for (int i =0 ; i <s.data()['conversationsIDs'].length ; i++)
-                                      FirebaseFirestore.instance.collection("Conversations").where("conversationsID",isEqualTo: s.data()['conversationsIDs'][i]).snapshots()
-                                ]
-                            ),
-                            builder: (context, snapshot) {
-                              if(snapshot.hasData){
-                                if(snapshot.data.length>0){
-                                  return ListView.builder(
-                                    itemCount: snapshot.data.length,
-                                    itemBuilder: (context, index) {
-                                      return InkWell(
-                                        onTap: () {
-                                          appCubit.setCurrentConversation(conversation.fromJson(snapshot.data[index].docs[0].data()));
-
-                                          if(snapshot.data[index].docs[0]['secondPerson']['id']==appCubit.currentuser.id){
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[index].docs[0]['firstPerson']['id'], snapshot.data[index].docs[0]['firstPerson']['name'],)));
-                                          }
-                                          else{
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[index].docs[0]['secondPerson']['id'], snapshot.data[index].docs[0]['secondPerson']['name'],)));
-                                          }
-                                        },
-                                        child: Container(
-                                          height: 80,
-                                          width: double.infinity,
-                                          child: Row(
-                                            textDirection: TextDirection.rtl,
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: [
-                                              Expanded(
-                                                child: Container(
-                                                  child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      AutoSizeText(
-                                                        (snapshot.data[index].docs[0]['secondPerson']['id']==appCubit.currentuser.id)?
-                                                        snapshot.data[index].docs[0]['firstPerson']['name'] : snapshot.data[index].docs[0]['secondPerson']['name'],
-                                                        style: TextStyle(
-                                                            color: Color(0xff505664), fontSize: 18),maxLines: 1,
-                                                      ),
-                                                      SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      (  snapshot.data[index].docs[0]['istyping']=="false")?Text(
-                                                        snapshot.data[index].docs[0]['lastMassage'],
-                                                        style: TextStyle(
-                                                            fontSize: 18, color: Color(0xff505664)),maxLines: 1,overflow: TextOverflow.ellipsis,
-                                                      ):Text(
-                                                        "typing...",
-                                                        style: TextStyle(
-                                                            fontSize: 18, color: Colors.green),
-                                                      )
-                                                    ],
-                                                  ),
+                          if(snapshot.data[0].docs.length>0){
+                            return ListView.builder(
+                              itemCount: snapshot.data[0].docs.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  onTap: () {
+                                    appCubit.setChosenUser(conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson);
+                                    appCubit.setCurrentConversation(conversation.fromJson(snapshot.data[0].docs[index].data()));
+                                    if(conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.id==appCubit.currentuser.id){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[0].docs[index]['firstPerson']['id'],snapshot.data[0].docs[index]['firstPerson']['name'],)));
+                                    }
+                                    else{
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[0].docs[index]['secondPerson']['id'], snapshot.data[0].docs[index]['secondPerson']['name'],)));
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 80,
+                                    width: double.infinity,
+                                    child: Row(
+                                      textDirection: TextDirection.rtl,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                AutoSizeText(
+                                                  (conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.id==appCubit.currentuser.id)?
+                                                  conversation.fromJson(snapshot.data[0].docs[index].data()).firstPerson.name : conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.name,
+                                                  style: TextStyle(
+                                                      color: Color(0xff505664), fontSize: 18),maxLines: 1,
                                                 ),
-                                              ),
-                                              SizedBox(width: 20,),
-                                              Container(
-                                                height: 60,
-                                                width:60,
-                                                decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(40),
-                                                    border: Border.all(
-                                                      color: Color(0xff3570EC),
-                                                      width: 1.5,
-                                                    )),
-                                                child: ClipRRect(
-                                                    borderRadius: BorderRadius.circular(40),
-                                                    child: Image.network(
-                                                      (snapshot.data[index].docs[0]['secondPerson']['id']==appCubit.currentuser.id)?
-                                                      snapshot.data[index].docs[0]['firstPerson']['image'] : snapshot.data[index].docs[0]['secondPerson']['image'],
-                                                      fit: BoxFit.fill,)),
-                                              )
-                                            ],
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                (  conversation.fromJson(snapshot.data[0].docs[index].data()).istyping=="false")?Text(
+                                                  conversation.fromJson(snapshot.data[0].docs[index].data()).lastMassage,
+                                                  style: TextStyle(
+                                                      fontSize: 18, color: Color(0xff505664)),maxLines: 1,overflow: TextOverflow.ellipsis,
+                                                ):Text(
+                                                  "typing...",
+                                                  style: TextStyle(
+                                                      fontSize: 18, color: Colors.green),
+                                                )
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      );
-                                    },
-                                  );
-                                }
-                                else{
-                                  return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
-                                }
-                              }
-                              else{
-                                return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
-                              }
-
-                            },
-                          );
+                                        SizedBox(width: 20,),
+                                        Container(
+                                          height: 60,
+                                          width:60,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(40),
+                                              border: Border.all(
+                                                color: Color(0xff3570EC),
+                                                width: 1.5,
+                                              )),
+                                          child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(40),
+                                              child: Image.network(
+                                                (conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.id==appCubit.currentuser.id)?
+                                                conversation.fromJson(snapshot.data[0].docs[index].data()).firstPerson.imagepath: conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.imagepath,
+                                                fit: BoxFit.fill,)),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                          else{
+                            return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
+                          }
                         }
                         else{
-                          return Container(child: Center(child: CircularProgressIndicator()));
+                          return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
                         }
+
                       },
                     ):
                     ListView.builder(
@@ -220,6 +208,7 @@ class FriendsList extends StatelessWidget {
                         return InkWell(
                           onTap: () {
                             appCubit.setChosenUser(appCubit.searchlist[index]);
+                            appCubit.resetCurrentConversation();
                             Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(appCubit.chosenUser.id,appCubit.chosenUser.name),));
                             appCubit.changesearchbarState();
                           },

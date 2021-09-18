@@ -38,16 +38,7 @@ class AppCubit extends Cubit<AppCubitStates> {
     currentConversation=null;
     emit(getConversationsDetailsState());
   }
-  Stream <List<conversation>>getConversationsDetails() {
 
-      currentuser.conversationsIDs.forEach((element) {
-        if(currentuser.conversationsIDs.length>0){
-          FirebaseFirestore.instance.collection("Conversations").where("conversationsID",isEqualTo: element).get().then((value) {
-            myConversations.add(conversation.fromJson(value.docs[0].data()));
-          });
-        }
-      });
-  }
 
   Future sendMessage(String massage,AppCubit appCubit)async{
     Massage newMessage =Massage(massage, DateTime.now().toString(), DateTime.now().millisecondsSinceEpoch.toString(),appCubit.currentuser.id);
@@ -63,7 +54,10 @@ class AppCubit extends Cubit<AppCubitStates> {
   }
 
   Future updateMessagesInFirebase()async{
-    await FirebaseFirestore.instance.collection("Conversations").doc(currentConversation.conversationId).update(
+    await userscollection.doc(currentuser.id).collection("chats").doc(chosenUser.id).update(
+        {"Messages": currentConversation.massages.map((e) => e.toJson()).toList(),'lastMassage':currentConversation.massages.last.massage,"istyping": "false"});
+
+    await userscollection.doc(chosenUser.id).collection("chats").doc(currentuser.id).update(
         {"Messages": currentConversation.massages.map((e) => e.toJson()).toList(),'lastMassage':currentConversation.massages.last.massage,"istyping": "false"});
   }
 
@@ -111,8 +105,14 @@ class AppCubit extends Cubit<AppCubitStates> {
     emit(searchbarresetState());
   }
   user chosenUser;
-  void setChosenUser(user chosen){
+  Future setChosenUser(user chosen)async{
     chosenUser=chosen;
+    await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).get().then((conversationDocument) async {
+      if(conversationDocument.data()!=null){
+        currentConversation=conversation.fromJson(conversationDocument.data());
+      }
+      emit(newconversationAddedSuccssefully());
+    });
     emit(searchbarresetState());
   }
   Future<conversation> addnewconversation(List<Massage>messages)async{
@@ -120,24 +120,15 @@ class AppCubit extends Cubit<AppCubitStates> {
     conversation newconversation =conversation(currentuser, chosenUser);
     newconversation.massages=messages;
 
-      await FirebaseFirestore.instance.collection("Conversations").add(newconversation.toJson()).then((value) async {
-      currentuser.conversationsIDs.add(value.id);
-      newconversation.conversationId=value.id;
-      await  FirebaseFirestore.instance.collection("Conversations").doc(value.id).update({
-        "conversationsID":value.id}
-      );
-      await  FirebaseFirestore.instance.collection("Users").doc(currentuser.id).update({
-       "conversationsIDs":currentuser.conversationsIDs}
-      );
-      chosenUser.conversationsIDs.add(value.id);
-      await  FirebaseFirestore.instance.collection("Users").doc(chosenUser.id).update({
-        "conversationsIDs":chosenUser.conversationsIDs}
-      );
+     await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).set(newconversation.toJson()).then((valuee) async {
+       currentConversation=newconversation;
+       conversation createReceiverConversation =conversation(chosenUser, currentuser);
+       await FirebaseFirestore.instance.collection("Users").doc(chosenUser.id).collection("chats").doc(currentuser.id).set(createReceiverConversation.toJson()).then((valuee) async {
+         emit(newconversationAddedSuccssefully());
+       });
+       emit(newconversationAddedSuccssefully());
+     });
 
-      currentConversation=newconversation;
-      emit(newconversationAddedSuccssefully());
-      });
-    //return newconversation;
   }
   void GetCurrentUser(user user)async{
     currentuser=user;
@@ -190,7 +181,6 @@ class AppCubit extends Cubit<AppCubitStates> {
       UserCredential userCredential =await GetUserCredentialFromFireBase(username,password);
       if(userCredential!=null){
         await isValidUser(userCredential);
-        await getConversationsDetails();
         isloging=false;
       }
       else{

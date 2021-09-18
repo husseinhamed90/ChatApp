@@ -68,6 +68,8 @@ dependencies:
   mime_type: ^1.0.0
   rxdart: ^0.27.1
   flutter_search_bar: ^2.1.0
+  scrollable_positioned_list: ^0.1.10
+
   mime: ^1.0.0
 
 dev_dependencies:
