@@ -54,65 +54,67 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                );
              }
              else{
-               return Container(
-                 decoration: BoxDecoration(
-                     gradient: LinearGradient(
-                         begin: Alignment.topCenter,
-                         end: Alignment.bottomCenter,
-                         colors: [Color(0xffE5F7FF), Color(0xffFFFFFF)])),
-                 child: Center(
-                   child: SingleChildScrollView(
-                     child: Column(
-                       mainAxisAlignment: MainAxisAlignment.center,
-                       crossAxisAlignment: CrossAxisAlignment.center,
-                       children: [
-                         Container(
-                           width: MediaQuery.of(context).size.width-50,
-                           child: TextFormField(
-                             controller: username,
-                             decoration: InputDecoration(
-                                 border: new OutlineInputBorder(
-                                     borderSide: new BorderSide(color: Colors.teal)),
-                                 labelText: "اسم المستخدم"
+               return SafeArea(
+                 child: Container(
+                   decoration: BoxDecoration(
+                       gradient: LinearGradient(
+                           begin: Alignment.topCenter,
+                           end: Alignment.bottomCenter,
+                           colors: [Color(0xffE5F7FF), Color(0xffFFFFFF)])),
+                   child: Center(
+                     child: SingleChildScrollView(
+                       child: Column(
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         crossAxisAlignment: CrossAxisAlignment.center,
+                         children: [
+                           Container(
+                             width: MediaQuery.of(context).size.width-50,
+                             child: TextFormField(
+                               controller: username,
+                               decoration: InputDecoration(
+                                   border: new OutlineInputBorder(
+                                       borderSide: new BorderSide(color: Colors.teal)),
+                                   labelText: "اسم المستخدم"
 
+                               ),
                              ),
                            ),
-                         ),
-                         SizedBox(height: 30,),
-                         Container(
-                           width: MediaQuery.of(context).size.width-50,
-                           child: TextFormField(
-                             obscureText: issecure,
-                             controller: password,
+                           SizedBox(height: 30,),
+                           Container(
+                             width: MediaQuery.of(context).size.width-50,
+                             child: TextFormField(
+                               obscureText: issecure,
+                               controller: password,
 
-                             decoration: InputDecoration(
-                                 border: new OutlineInputBorder(
-                                     borderSide: new BorderSide(color: Colors.teal)),
-                                 labelText: "كلمة السر",
-                                 suffixIcon: IconButton(
-                                   onPressed: () {
-                                     setState(() {
-                                       issecure=!issecure;
-                                     });
-                                   },
-                                   icon: (issecure)?Icon(Icons.visibility_off):Icon(Icons.visibility),
-                                 )
+                               decoration: InputDecoration(
+                                   border: new OutlineInputBorder(
+                                       borderSide: new BorderSide(color: Colors.teal)),
+                                   labelText: "كلمة السر",
+                                   suffixIcon: IconButton(
+                                     onPressed: () {
+                                       setState(() {
+                                         issecure=!issecure;
+                                       });
+                                     },
+                                     icon: (issecure)?Icon(Icons.visibility_off):Icon(Icons.visibility),
+                                   )
+                               ),
                              ),
                            ),
-                         ),
-                         SizedBox(height: 30,),
-                         TextButton(onPressed: ()async{
-                           //v.getnumofnews(value);
-                          await v.loginwithusernameandpassword(username.text,password.text);
-                         }, child: Text("تسجيل دخول",style: TextStyle(
-                             fontSize: 20
-                         ),)),
-                         TextButton(onPressed: (){
-                           Navigator.push(context, MaterialPageRoute(builder: (context) => Register(),));
-                         }, child: Text("عمل اكونت",style: TextStyle(
-                             fontSize: 20
-                         ),)),
-                       ],
+                           SizedBox(height: 30,),
+                           TextButton(onPressed: ()async{
+                             //v.getnumofnews(value);
+                            await v.loginwithusernameandpassword(username.text,password.text);
+                           }, child: Text("تسجيل دخول",style: TextStyle(
+                               fontSize: 20
+                           ),)),
+                           TextButton(onPressed: (){
+                             Navigator.push(context, MaterialPageRoute(builder: (context) => Register(),));
+                           }, child: Text("عمل اكونت",style: TextStyle(
+                               fontSize: 20
+                           ),)),
+                         ],
+                       ),
                      ),
                    ),
                  ),

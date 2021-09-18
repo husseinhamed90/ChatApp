@@ -8,16 +8,16 @@ class conversation {
   user firstPerson;
   user secondPerson;
   String istyping="false";
-  List<Massage> massages=[];
+  //List<Massage> massages=[];
   conversation.fromJson(Map<String, dynamic> json) {
     lastMassage = json['lastMassage'];
     firstPerson =user.fromJson(json['firstPerson']);
     secondPerson =user.fromJson(json['secondPerson']);
-    List<Massage>map=[];
-    json['Messages'].forEach((element) {
-      map.add(Massage.fromJson(element));
-    });
-    massages=map;
+    // List<Massage>map=[];
+    // json['Messages'].forEach((element) {
+    //   map.add(Massage.fromJson(element));
+    // });
+    // massages=map;
     istyping=json['istyping'];
   }
 
@@ -30,11 +30,11 @@ class conversation {
     data['secondPerson']=secondPerson.toJson();
     data['lastMassage']=lastMassage;
     data['istyping']=istyping;
-    List<Map<String,dynamic>>map=[{}];
-    massages.forEach((element) {
-      map.add(element.toJson());
-    });
-    data['Messages']=map;
+    // List<Map<String,dynamic>>map=[{}];
+    // massages.forEach((element) {
+    //   map.add(element.toJson());
+    // });
+    // data['Messages']=map;
     return data;
   }
 }

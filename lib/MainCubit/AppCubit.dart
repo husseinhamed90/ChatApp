@@ -34,31 +34,42 @@ class AppCubit extends Cubit<AppCubitStates> {
     emit(setUpdatedUser());
   }
 
+  int pageSize=6;
+  Future increasePageSize(){
+    pageSize+=6;
+    emit(getConversationsDetailsState());
+  }
+  void resetPageSize(){
+    pageSize=6;
+    emit(getConversationsDetailsState());
+  }
+
   void resetCurrentConversation(){
     currentConversation=null;
     emit(getConversationsDetailsState());
   }
 
 
+
   Future sendMessage(String massage,AppCubit appCubit)async{
+    resetPageSize();
     Massage newMessage =Massage(massage, DateTime.now().toString(), DateTime.now().millisecondsSinceEpoch.toString(),appCubit.currentuser.id);
     if(appCubit.currentConversation==null){
       List<Massage>messages=[];
        messages.add(newMessage);
        await appCubit.addnewconversation(messages);
     }
-    else{
-       appCubit.addMessageToConversation(newMessage);
-    }
-    await appCubit.updateMessagesInFirebase();
+    await appCubit.addMessageToConversation(newMessage);
+    await appCubit.updateMessagesInFirebase(massage);
   }
 
-  Future updateMessagesInFirebase()async{
+  Future updateMessagesInFirebase(String massage)async{
+
     await userscollection.doc(currentuser.id).collection("chats").doc(chosenUser.id).update(
-        {"Messages": currentConversation.massages.map((e) => e.toJson()).toList(),'lastMassage':currentConversation.massages.last.massage,"istyping": "false"});
+        {'lastMassage':massage,"istyping": "false"});
 
     await userscollection.doc(chosenUser.id).collection("chats").doc(currentuser.id).update(
-        {"Messages": currentConversation.massages.map((e) => e.toJson()).toList(),'lastMassage':currentConversation.massages.last.massage,"istyping": "false"});
+        {'lastMassage':massage,"istyping": "false"});
   }
 
   void emptythesearchlist(){
@@ -88,10 +99,13 @@ class AppCubit extends Cubit<AppCubitStates> {
     });
   }
 
-  void addMessageToConversation(Massage newMessage){
-    currentConversation.massages.add(newMessage);
+  Future addMessageToConversation(Massage newMessage)async{
+   // currentConversation.massages.add(newMessage);
+    await userscollection.doc(currentuser.id).collection("chats").doc(chosenUser.id).collection("Messages").add(newMessage.toJson());
+    await userscollection.doc(chosenUser.id).collection("chats").doc(currentuser.id).collection("Messages").add(newMessage.toJson());
+
     setCurrentConversation(currentConversation);
-    //emit(getConversationsDetailsState());
+    emit(getConversationsDetailsState());
   }
 
   void setCurrentConversation(conversation conversation){
@@ -118,23 +132,19 @@ class AppCubit extends Cubit<AppCubitStates> {
   Future<conversation> addnewconversation(List<Massage>messages)async{
 
     conversation newconversation =conversation(currentuser, chosenUser);
-    newconversation.massages=messages;
+    //newconversation.massages=messages;
 
-     await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).set(newconversation.toJson()).then((valuee) async {
+   // await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).collection("Messages").set(newconversation.toJson()).then((valuee) async {
+
+      await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).set(newconversation.toJson()).then((valuee) async {
        currentConversation=newconversation;
-       conversation createReceiverConversation =conversation(chosenUser, currentuser);
-       await FirebaseFirestore.instance.collection("Users").doc(chosenUser.id).collection("chats").doc(currentuser.id).set(createReceiverConversation.toJson()).then((valuee) async {
-         emit(newconversationAddedSuccssefully());
-       });
-       emit(newconversationAddedSuccssefully());
      });
+    conversation createReceiverConversation =conversation(chosenUser, currentuser);
+   // createReceiverConversation.massages=messages;
+    await FirebaseFirestore.instance.collection("Users").doc(chosenUser.id).collection("chats").doc(currentuser.id).set(createReceiverConversation.toJson());
+    emit(newconversationAddedSuccssefully());
+  }
 
-  }
-  void GetCurrentUser(user user)async{
-    currentuser=user;
-    await getusers();
-    emit(GetUserIDSate());
-  }
   bool checkvalidatyofinputs(String username,String password){
     if(username == "" || password == ""){
       return false;
@@ -143,6 +153,12 @@ class AppCubit extends Cubit<AppCubitStates> {
       return true;
     }
   }
+
+  Future<void> changeTypingState(bool typingState) async {
+    await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).update({"istyping": typingState.toString()});
+    await FirebaseFirestore.instance.collection("Users").doc(chosenUser.id).collection("chats").doc(currentuser.id).update({"istyping": typingState.toString()});
+  }
+
 
   Future<UserCredential>GetUserCredentialFromFireBase(String username,String password) async{
     try{
@@ -158,14 +174,12 @@ class AppCubit extends Cubit<AppCubitStates> {
   }
 
   Future<void>isValidUser(UserCredential userCredential)async{
-    await FirebaseFirestore.instance.collection('Users').get().then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        if (user.fromJson(doc.data()).id == userCredential.user.uid) {
-          GetCurrentUser(user.fromJson(doc.data()));
-          //emit(currentuserdata());
-          emit(validuser());
-        }
-      });
+    await FirebaseFirestore.instance.collection('Users').doc(userCredential.user.uid).get().then((querySnapshot) {
+
+      if(querySnapshot.data()!=null){
+        currentuser=user.fromJson(querySnapshot.data());
+        emit(GetUserIDSate());
+      }
     });
   }
 
@@ -229,18 +243,5 @@ class AppCubit extends Cubit<AppCubitStates> {
     else {
       await RegisterNewUser(username,password);
     }
-  }
-
-  Future<void> getusers() async {
-    users = [];
-    emit(loaddatafromfirebase());
-    await userscollection.get().then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        users.add(user.fromJson(doc.data()));
-      });
-      emit(getusersstate());
-    }).catchError((error) {
-      print(error);
-    });
   }
 }

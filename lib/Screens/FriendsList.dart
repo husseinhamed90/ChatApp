@@ -115,8 +115,6 @@ class FriendsList extends StatelessWidget {
                           ]
                       ),
                       builder: (context, snapshot) {
-
-
                         if(snapshot.hasData){
                           if(snapshot.data[0].docs.length>0){
                             return ListView.builder(
@@ -124,13 +122,16 @@ class FriendsList extends StatelessWidget {
                               itemBuilder: (context, index) {
                                 return InkWell(
                                   onTap: () {
+                                    appCubit.resetPageSize();
                                     appCubit.setChosenUser(conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson);
                                     appCubit.setCurrentConversation(conversation.fromJson(snapshot.data[0].docs[index].data()));
                                     if(conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.id==appCubit.currentuser.id){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[0].docs[index]['firstPerson']['id'],snapshot.data[0].docs[index]['firstPerson']['name'],)));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                                          ChatScreen(conversation.fromJson(snapshot.data[0].docs[index].data()).firstPerson.id,conversation.fromJson(snapshot.data[0].docs[index].data()).firstPerson.name,)));
                                     }
                                     else{
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen( snapshot.data[0].docs[index]['secondPerson']['id'], snapshot.data[0].docs[index]['secondPerson']['name'],)));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                                          ChatScreen(conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.id, conversation.fromJson(snapshot.data[0].docs[index].data()).secondPerson.name,)));
                                     }
                                   },
                                   child: Container(

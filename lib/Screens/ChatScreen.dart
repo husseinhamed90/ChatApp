@@ -9,6 +9,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:paginate_firestore/paginate_firestore.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../MainCubit/AppCubit.dart';
@@ -52,59 +53,52 @@ class ChatScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: StreamBuilder(
-                      stream: CombineLatestStream.list([
-
-                        if(appCubit.currentConversation!=null)
-                           FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).snapshots()
-                      ]),
+                      stream: FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).collection("Messages").orderBy("timeStamp").limitToLast(appCubit.pageSize).snapshots(),
                       builder: (context, snapshot) {
                         if(snapshot.hasData){
-                          DocumentSnapshot conversation=snapshot.data[0];
+                          QuerySnapshot conversation=snapshot.data;
                           List<Massage>messages=getListOfMessages(conversation);
+                          return RefreshIndicator(
+                            onRefresh:() async =>  appCubit.increasePageSize(),
+                            child: ListView.builder(
 
-                          if(itemScrollController.isAttached&&messages.length>1){
+                          //    physics: ScrollPhysics(),
+                              itemBuilder: (context, index) {
 
-                            itemScrollController.scrollTo(
-                                index: messages.length-1,
-                                duration: Duration(milliseconds: 100),
-                                curve: Curves.linear);
-                          }
-                          return ScrollablePositionedList.builder(
-                            itemScrollController: itemScrollController,
-                            itemBuilder: (context, index) {
+                                messages.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
+                                return Container(
+                                  padding: EdgeInsets.all(5),
+                                  child: Column(
+                                    children: [
 
-                              messages.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
-                              return Container(
-                                padding: EdgeInsets.all(5),
-                                child: Column(
-                                  children: [
-                                    Align(
-                                      child: Text("${DateTime.fromMillisecondsSinceEpoch(int.parse(messages[index].timeStamp))}",style: TextStyle(
-                                        fontSize: 12,
-                                      ),),
-                                      alignment: Alignment.center,
-                                    ),
-                                    SizedBox(height: 5,),
-                                    Align(
-                                      alignment: (messages[index].senderId==AppCubit.get(context).currentuser.id)?Alignment.centerRight:Alignment.centerLeft,
-                                      child: Container(
-                                        padding: EdgeInsets.all(7),
-                                        decoration: BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                                        ),
-                                        child: Text(messages[index].massage,style: TextStyle(
-                                        fontSize: 14,color: Colors.white,fontWeight: FontWeight.w600
-                                          ),),
+                                      Align(
+                                        child: Text("${DateTime.fromMillisecondsSinceEpoch(int.parse(messages[index].timeStamp))}",style: TextStyle(
+                                          fontSize: 12,
+                                        ),),
+                                        alignment: Alignment.center,
                                       ),
-                                    ),
-                                    SizedBox(height: 5,),
+                                      SizedBox(height: 5,),
+                                      Align(
+                                        alignment: (messages[index].senderId==AppCubit.get(context).currentuser.id)?Alignment.centerRight:Alignment.centerLeft,
+                                        child: Container(
+                                          padding: EdgeInsets.all(7),
+                                          decoration: BoxDecoration(
+                                              color: Colors.blue,
+                                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                                          ),
+                                          child: Text(messages[index].massage,style: TextStyle(
+                                          fontSize: 14,color: Colors.white,fontWeight: FontWeight.w600
+                                            ),),
+                                        ),
+                                      ),
+                                    // SizedBox(height: 5,),
 
-                                  ],
-                                ),
-                              );
-                            },
-                            itemCount: messages.length,
+                                    ],
+                                  ),
+                                );
+                              },
+                              itemCount: messages.length,
+                            ),
                           );
                         }
                         else{
@@ -123,14 +117,15 @@ class ChatScreen extends StatelessWidget {
                       child: TextFormField(
                         controller: controller,
                         onChanged: (value) async{
-
                           if(value.isEmpty==false){
-                            if(appCubit.currentConversation!=null)
-                              await FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).update({"istyping": "true"});
+                            if(appCubit.currentConversation!=null){
+                              await appCubit.changeTypingState(true);
+                            }
                           }
                           else{
-                            if(appCubit.currentConversation!=null)
-                              await FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).update({"istyping": "false"});
+                            if(appCubit.currentConversation!=null){
+                              await appCubit.changeTypingState(false);
+                            }
                           }
                         },
                         decoration: InputDecoration(
@@ -164,10 +159,11 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
-  List<Massage> getListOfMessages(DocumentSnapshot sender ) {
+
+  List<Massage> getListOfMessages(QuerySnapshot sender) {
     List<Massage> messages=[];
-    sender.data()["Messages"].forEach((element){
-       messages.add(Massage.fromJson(element));
+    sender.docs.forEach((element){
+         messages.add(Massage.fromJson(element.data()));
     });
     return messages;
   }
