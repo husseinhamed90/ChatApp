@@ -1,13 +1,11 @@
-
 import 'package:chatapp/MainCubit/AppCubit.dart';
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
 import 'package:chatapp/Widgets/CustomAppBar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:toast/toast.dart'as ss;
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 class Register extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();

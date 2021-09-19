@@ -1,9 +1,9 @@
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
+import 'package:chatapp/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
 import '../MainCubit/AppCubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Login extends StatefulWidget {
@@ -25,7 +25,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
   bool issecure=true;
   @override
   Widget build(BuildContext context) {
-   // Scale.setup(context, Size(1280, 720));
        return Scaffold(
 
          body:  BlocConsumer<AppCubit,AppCubitStates>(
@@ -103,7 +102,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                            ),
                            SizedBox(height: 30,),
                            TextButton(onPressed: ()async{
-                             //v.getnumofnews(value);
                             await v.loginwithusernameandpassword(username.text,password.text);
                            }, child: Text("تسجيل دخول",style: TextStyle(
                                fontSize: 20
@@ -125,16 +123,5 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
          )
        );
   }
-  Widget getsnackbar(BuildContext context,String message){
-    final snackBar = SnackBar(
-      content: Text(message),
-      action: SnackBarAction(
-        label: 'تراجع',
-        onPressed: () {
-          // Some code to undo the change.
-        },
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
+
 }

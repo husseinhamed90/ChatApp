@@ -34,6 +34,28 @@ class AppCubit extends Cubit<AppCubitStates> {
     emit(setUpdatedUser());
   }
 
+  List<Massage> sortMessages(List<Massage> messages) {
+    messages.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
+    return messages;
+  }
+
+
+  Stream<QuerySnapshot> getStreamOfConversations(AppCubit appCubit) => FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").snapshots();
+
+
+
+
+  List<Massage> getListOfMessages(QuerySnapshot sender) {
+    List<Massage> messages=[];
+    sender.docs.forEach((element){
+      messages.add(Massage.fromJson(element.data()));
+    });
+    messages= sortMessages(messages);
+    return messages;
+  }
+
+  Stream<QuerySnapshot> streamOfMessages() => FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).collection("Messages").orderBy("timeStamp").limitToLast(pageSize).snapshots();
+
   int pageSize=6;
   Future increasePageSize(){
     pageSize+=6;
@@ -132,15 +154,10 @@ class AppCubit extends Cubit<AppCubitStates> {
   Future<conversation> addnewconversation(List<Massage>messages)async{
 
     conversation newconversation =conversation(currentuser, chosenUser);
-    //newconversation.massages=messages;
-
-   // await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).collection("Messages").set(newconversation.toJson()).then((valuee) async {
-
       await FirebaseFirestore.instance.collection("Users").doc(currentuser.id).collection("chats").doc(chosenUser.id).set(newconversation.toJson()).then((valuee) async {
        currentConversation=newconversation;
      });
     conversation createReceiverConversation =conversation(chosenUser, currentuser);
-   // createReceiverConversation.massages=messages;
     await FirebaseFirestore.instance.collection("Users").doc(chosenUser.id).collection("chats").doc(currentuser.id).set(createReceiverConversation.toJson());
     emit(newconversationAddedSuccssefully());
   }

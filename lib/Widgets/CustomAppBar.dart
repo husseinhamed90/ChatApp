@@ -18,23 +18,6 @@ class CustomAppbar extends StatefulWidget {
 
 class _AppbarState extends State<CustomAppbar> {
 
-  List<String > ss=[];
-  Timer timer;
-
-  Stream<String>stream;
-
-  @override
-  void initState() {
-    stream=Stream<String>.periodic(Duration(seconds: 1), (t) => _getTime());
-    super.initState();
-  }
-  String _getTime() {
-    ss= DateFormat.yMEd().add_jms().format(DateTime.now()).split(' ');
-    String last =ss[1].split('/')[1]+"/"+ss[1].split('/')[0]+"/"+ss[1].split('/')[2]+" - "+ss[2];
-    List<String>ff=last.split('-');
-
-    return ff[1]+" - "+ff[0];
-  }
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -60,8 +43,6 @@ class _AppbarState extends State<CustomAppbar> {
             );
           },child: Container(child: Icon(Icons.close,size: 30,color: Colors.blue,),margin: EdgeInsets.only(right: 10),)),
         ),
-
-
       ],
 
       backgroundColor: Color(0xffE5F7FF),

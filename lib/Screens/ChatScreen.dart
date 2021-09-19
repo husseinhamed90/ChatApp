@@ -1,31 +1,17 @@
-
-import 'dart:async';
-
 import 'package:chatapp/MainCubit/AppCubitStates.dart';
-import 'package:chatapp/Models/Conversation.dart';
 import 'package:chatapp/Models/Massage.dart';
-import 'package:date_format/date_format.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:paginate_firestore/paginate_firestore.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
 import '../MainCubit/AppCubit.dart';
 import '../Widgets/CustomAppBar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ChatScreen extends StatelessWidget {
-  String receiver;
   String name;
-  ChatScreen(this.receiver,this.name);
-
-  final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  ChatScreen(this.name);
 
   TextEditingController controller=new TextEditingController();
   @override
@@ -53,50 +39,14 @@ class ChatScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection("Users").doc(appCubit.currentuser.id).collection("chats").doc(appCubit.chosenUser.id).collection("Messages").orderBy("timeStamp").limitToLast(appCubit.pageSize).snapshots(),
+                      stream: appCubit.streamOfMessages(),
                       builder: (context, snapshot) {
                         if(snapshot.hasData){
-                          QuerySnapshot conversation=snapshot.data;
-                          List<Massage>messages=getListOfMessages(conversation);
+                          List<Massage>messages=appCubit.getListOfMessages(snapshot.data);
                           return RefreshIndicator(
                             onRefresh:() async =>  appCubit.increasePageSize(),
                             child: ListView.builder(
-
-                          //    physics: ScrollPhysics(),
-                              itemBuilder: (context, index) {
-
-                                messages.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
-                                return Container(
-                                  padding: EdgeInsets.all(5),
-                                  child: Column(
-                                    children: [
-
-                                      Align(
-                                        child: Text("${DateTime.fromMillisecondsSinceEpoch(int.parse(messages[index].timeStamp))}",style: TextStyle(
-                                          fontSize: 12,
-                                        ),),
-                                        alignment: Alignment.center,
-                                      ),
-                                      SizedBox(height: 5,),
-                                      Align(
-                                        alignment: (messages[index].senderId==AppCubit.get(context).currentuser.id)?Alignment.centerRight:Alignment.centerLeft,
-                                        child: Container(
-                                          padding: EdgeInsets.all(7),
-                                          decoration: BoxDecoration(
-                                              color: Colors.blue,
-                                              borderRadius: BorderRadius.all(Radius.circular(20)),
-                                          ),
-                                          child: Text(messages[index].massage,style: TextStyle(
-                                          fontSize: 14,color: Colors.white,fontWeight: FontWeight.w600
-                                            ),),
-                                        ),
-                                      ),
-                                    // SizedBox(height: 5,),
-
-                                    ],
-                                  ),
-                                );
-                              },
+                              itemBuilder: (context, index) => buildMessageBody(messages, index, context),
                               itemCount: messages.length,
                             ),
                           );
@@ -159,12 +109,37 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
+  Container buildMessageBody(List<Massage> messages, int index, BuildContext context) {
+    return Container(
+                                padding: EdgeInsets.all(5),
+                                child: Column(
+                                  children: [
+                                    Align(
+                                      child: Text("${DateTime.fromMillisecondsSinceEpoch(int.parse(messages[index].timeStamp))}",style: TextStyle(
+                                        fontSize: 12,
+                                      ),),
+                                      alignment: Alignment.center,
+                                    ),
+                                    SizedBox(height: 5,),
+                                    Align(
+                                      alignment: (messages[index].senderId==AppCubit.get(context).currentuser.id)?Alignment.centerRight:Alignment.centerLeft,
+                                      child: Container(
+                                        padding: EdgeInsets.all(7),
+                                        decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                                        ),
+                                        child: Text(messages[index].massage,style: TextStyle(
+                                        fontSize: 14,color: Colors.white,fontWeight: FontWeight.w600
+                                          ),),
+                                      ),
+                                    ),
+                                  // SizedBox(height: 5,),
 
-  List<Massage> getListOfMessages(QuerySnapshot sender) {
-    List<Massage> messages=[];
-    sender.docs.forEach((element){
-         messages.add(Massage.fromJson(element.data()));
-    });
-    return messages;
+                                  ],
+                                ),
+                              );
   }
+
+
 }
