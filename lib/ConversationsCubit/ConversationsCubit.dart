@@ -15,7 +15,7 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
   user chosenUser;
   CollectionReference usersCollection = FirebaseFirestore.instance.collection('Users');
   user currentUser;
-  DocumentReference chatDocument() => usersCollection.doc(currentUser.id).collection("chats").doc(chosenUser.id);
+  DocumentReference chosenUserChat() => usersCollection.doc(currentUser.id).collection("chats").doc(chosenUser.id);
   Conversation currentConversation;
 
 
@@ -36,7 +36,7 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
     chatRoomCubit.resetPageSize();
     chatRoomCubit.resetCurrentConversation();
     if(conversation==null){
-      await chatDocument().get().then((conversationDocument) async {
+      await chosenUserChat().get().then((conversationDocument) async {
         if(conversationDocument.data()!=null){
 
           currentConversation=Conversation.fromJson(conversationDocument.data());
