@@ -20,9 +20,12 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
  Conversation currentConversation;
  int pageSize=6;
 
- DocumentReference chatDocument() => usersCollection.doc(currentUser.id).collection("chats").doc(chosenUser.id);
+ DocumentReference chosenUserChat() => usersCollection.doc(currentUser.id).collection("chats").doc(chosenUser.id);
 
- Stream<QuerySnapshot> streamOfMessages() =>chatDocument().collection("Messages").orderBy("timeStamp").limitToLast(pageSize).snapshots();
+ DocumentReference currentUserChat() => usersCollection.doc(chosenUser.id).collection("chats").doc(currentUser.id);
+
+ Stream<QuerySnapshot> streamOfMessages() =>chosenUserChat().collection("Messages").orderBy("timeStamp").limitToLast(pageSize).snapshots();
+
 
  void setCurrentUser(user user){
    currentUser=user;
@@ -52,12 +55,13 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
  }
 
  Future updateMessagesInFirebase(Message newMessage)async{
-   await chatDocument().collection("Messages").add(newMessage.toJson());
-   await chatDocument().update({'lastMassage':newMessage.massage,"istyping": "false","dateOfConversation":newMessage.timeStamp});
+   await chosenUserChat().collection("Messages").add(newMessage.toJson());
+   await chosenUserChat().update({'lastMassage':newMessage.massage,"istyping": "false","dateOfConversation":newMessage.timeStamp});
 
-   await usersCollection.doc(chosenUser.id).collection("chats").doc(currentUser.id).collection("Messages").add(newMessage.toJson());
-   await usersCollection.doc(chosenUser.id).collection("chats").doc(currentUser.id).update({'lastMassage':newMessage.massage,"istyping": "false","dateOfConversation":newMessage.timeStamp});
+   await currentUserChat().collection("Messages").add(newMessage.toJson());
+   await currentUserChat().update({'lastMassage':newMessage.massage,"istyping": "false","dateOfConversation":newMessage.timeStamp});
  }
+
 
  Future addnewconversation(List<Message>messages)async{
 
@@ -67,17 +71,17 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
    Conversation createReceiverConversation =Conversation(chosenUser, currentUser);
    createReceiverConversation.dateOfConversation=DateTime.now().millisecondsSinceEpoch.toString();
 
-   await chatDocument().set(newConversation.toJson()).then((value) async {
+   await chosenUserChat().set(newConversation.toJson()).then((value) async {
      currentConversation=newConversation;
    });
 
-   await usersCollection.doc(chosenUser.id).collection("chats").doc(currentUser.id).set(createReceiverConversation.toJson());
+   await currentUserChat().set(createReceiverConversation.toJson());
    emit(newconversationAddedSuccssefully());
  }
 
  Future<void> changeTypingState(bool typingState) async {
-   await chatDocument().update({"istyping": typingState.toString()});
-   await usersCollection.doc(chosenUser.id).collection("chats").doc(currentUser.id).update({"istyping": typingState.toString()});
+   await chosenUserChat().update({"istyping": typingState.toString()});
+   await currentUserChat().update({"istyping": typingState.toString()});
  }
 
  List<Message> getListOfMessages(QuerySnapshot sender) {
