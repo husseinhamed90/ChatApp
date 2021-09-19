@@ -1,10 +1,11 @@
-import 'package:chatapp/MainCubit/AppCubitStates.dart';
-import 'package:chatapp/Models/Massage.dart';
+import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
+import 'package:chatapp/ChatRoomCubit/ChatRoomStates.dart';
+import 'package:chatapp/Helpers/ResuableWidgets.dart';
+import 'package:chatapp/Models/Message.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../MainCubit/AppCubit.dart';
 import '../Widgets/CustomAppBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,10 +23,11 @@ class ChatScreen extends StatelessWidget {
         child: CustomAppbar(name),
         preferredSize: Size.fromHeight(70),
       ),
-      body:BlocConsumer<AppCubit,AppCubitStates>(
+      body:BlocConsumer<ChatRoomCubit,ChatRoomCubitStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          AppCubit appCubit =AppCubit.get(context);
+          print("ChatRoomCubit is rebuild");
+          ChatRoomCubit appCubit =ChatRoomCubit.get(context);
           return Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -42,18 +44,28 @@ class ChatScreen extends StatelessWidget {
                       stream: appCubit.streamOfMessages(),
                       builder: (context, snapshot) {
                         if(snapshot.hasData){
-                          List<Massage>messages=appCubit.getListOfMessages(snapshot.data);
-                          return RefreshIndicator(
-                            onRefresh:() async =>  appCubit.increasePageSize(),
-                            child: ListView.builder(
-                              itemBuilder: (context, index) => buildMessageBody(messages, index, context),
-                              itemCount: messages.length,
-                            ),
-                          );
+                          if(snapshot.data.docs.length==0){
+                            return Container(
+                              child: Center(child: Text("NO MESSAGES IN THIS CONVERSATION",style: TextStyle(
+                                fontSize: 15
+                              ),)),
+                            );
+                          }
+                          else{
+                            List<Message>messages=appCubit.getListOfMessages(snapshot.data);
+                            //  if(snapshot.data)
+                            return RefreshIndicator(
+                              onRefresh:() async =>  appCubit.increasePageSize(),
+                              child: ListView.builder(
+                                itemBuilder: (context, index) => buildMessageBody(messages, index, context),
+                                itemCount: messages.length,
+                              ),
+                            );
+                          }
                         }
                         else{
                           return Container(
-                            child: Center(child: Text("NO MESSAGES FOUND")),
+                            child: Center(child: CircularProgressIndicator()),
                           );
                         }
                       }
@@ -95,7 +107,9 @@ class ChatScreen extends StatelessWidget {
                       width: (MediaQuery.of(context).size.width-20)*0.15,
                       child: FloatingActionButton(onPressed: () async {
                         if(controller.text!=""){
-                          await appCubit.sendMessage(controller.text,appCubit);
+
+                          appCubit.sendMessage(controller.text);
+                          controller.text="";
                         }
                       },child: Icon(Icons.send,size:15,),backgroundColor: Colors.blue,),
                     )
@@ -107,38 +121,6 @@ class ChatScreen extends StatelessWidget {
         },
       )
     );
-  }
-
-  Container buildMessageBody(List<Massage> messages, int index, BuildContext context) {
-    return Container(
-                                padding: EdgeInsets.all(5),
-                                child: Column(
-                                  children: [
-                                    Align(
-                                      child: Text("${DateTime.fromMillisecondsSinceEpoch(int.parse(messages[index].timeStamp))}",style: TextStyle(
-                                        fontSize: 12,
-                                      ),),
-                                      alignment: Alignment.center,
-                                    ),
-                                    SizedBox(height: 5,),
-                                    Align(
-                                      alignment: (messages[index].senderId==AppCubit.get(context).currentuser.id)?Alignment.centerRight:Alignment.centerLeft,
-                                      child: Container(
-                                        padding: EdgeInsets.all(7),
-                                        decoration: BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                                        ),
-                                        child: Text(messages[index].massage,style: TextStyle(
-                                        fontSize: 14,color: Colors.white,fontWeight: FontWeight.w600
-                                          ),),
-                                      ),
-                                    ),
-                                  // SizedBox(height: 5,),
-
-                                  ],
-                                ),
-                              );
   }
 
 

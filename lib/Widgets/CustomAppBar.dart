@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
-import '../MainCubit/AppCubit.dart';
+import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/Models/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +58,7 @@ class _AppbarState extends State<CustomAppbar> {
   }
   Future<void> updateuserstatus(String newstatus) {
     List<user> userss = [];
-    FirebaseFirestore.instance.collection("Users").where("id", isEqualTo:AppCubit.get(context).currentuser.id).get().then((value) {
+    FirebaseFirestore.instance.collection("Users").where("id", isEqualTo:AuthCubit.get(context).currentUser.id).get().then((value) {
       FirebaseFirestore.instance.collection("Users").doc(value.docs.first.id).update({'isonline': newstatus}).then((value) {
         if (newstatus == "true") {
           FirebaseFirestore.instance.collection("Users").get().then((QuerySnapshot querySnapshot) {

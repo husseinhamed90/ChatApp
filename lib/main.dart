@@ -1,6 +1,7 @@
-import 'package:chatapp/MainCubit/AppCubitStates.dart';
+import 'package:chatapp/AuthCubit/AuthCubit.dart';
+import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
+import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'MainCubit/AppCubit.dart';
 import 'Screens/Login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -19,21 +20,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        BlocProvider(create: (_) => AppCubit(),),
+        BlocProvider(create: (_) => AuthCubit(),),
+        BlocProvider(create: (_) => ConversationsCubit(),),
+        BlocProvider(create: (_) => ChatRoomCubit(),),
       ],
-      child: BlocConsumer<AppCubit,AppCubitStates>(
-
-        listener: (context, state) {},
-        builder:(context, state) => MaterialApp(
-          theme: ThemeData(
-            textTheme: GoogleFonts.tajawalTextTheme(
-              Theme.of(context).textTheme,
-            ),
+      child: MaterialApp(
+        theme: ThemeData(
+          textTheme: GoogleFonts.tajawalTextTheme(
+            Theme.of(context).textTheme,
           ),
-          home: Login(),
-          debugShowCheckedModeBanner: false,
-        )
-      ),
+        ),
+        home: Login(),
+        debugShowCheckedModeBanner: false,
+      )
     );
   }
 }

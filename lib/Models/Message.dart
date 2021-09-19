@@ -1,4 +1,4 @@
-class Massage{
+class Message{
 
   String senderId;
   String massage;
@@ -6,9 +6,9 @@ class Massage{
   String timeStamp;
 
 
-  Massage(this.massage, this.dateOfMassage, this.timeStamp,this.senderId);
+  Message(this.massage, this.dateOfMassage, this.timeStamp,this.senderId);
 
-  Massage.fromJson(Map<String, dynamic> json) {
+  Message.fromJson(Map<String, dynamic> json) {
     massage= json["massage"];
     dateOfMassage= json["dateOfMassage"];
     timeStamp =json["timeStamp"];

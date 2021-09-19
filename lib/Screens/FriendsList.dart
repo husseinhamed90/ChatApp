@@ -1,6 +1,8 @@
-import 'package:chatapp/MainCubit/AppCubit.dart';
-import 'package:chatapp/MainCubit/AppCubitStates.dart';
-import 'package:chatapp/ResuableWidgets.dart';
+import 'package:chatapp/AuthCubit/AuthCubit.dart';
+import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
+import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import 'package:chatapp/ConversationsCubit/ConversationsCubitStates.dart';
+import '../Helpers/ResuableWidgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,10 +15,11 @@ class FriendsList extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: BlocConsumer<AppCubit,AppCubitStates>(
+      body: BlocConsumer<ConversationsCubit,ConversationsCubitStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          AppCubit appCubit =AppCubit.get(context);
+          print("conversationCubit is rebuild");
+          ConversationsCubit conversationCubit =ConversationsCubit.get(context);
           return SafeArea(
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 23),
@@ -41,16 +44,16 @@ class FriendsList extends StatelessWidget {
 
                           child: CircleAvatar(
                               backgroundColor: Colors.white,
-                              child: Icon((!appCubit.issearch)?Icons.search:Icons.close, color: Color(0xffD1DFFD),
+                              child: Icon((!conversationCubit.isSearch)?Icons.search:Icons.close, color: Color(0xffD1DFFD),
                               )
                           ),
                           onTap: () {
-                            appCubit.changesearchbarState();
+                            conversationCubit.changeSearchBarState();
                           },
                         ),
                         SizedBox(width: 20,),
                         Expanded(
-                          child: (!appCubit.issearch)?Container(
+                          child: (!conversationCubit.isSearch)?Container(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +67,7 @@ class FriendsList extends StatelessWidget {
                                   height: 5,
                                 ),
                                 Text(
-                                  AppCubit.get(context).currentuser.name,
+                                  conversationCubit.currentUser.name,
                                   style: TextStyle(
                                       color: Color(0xff3570EC), fontSize: 28),
                                 )
@@ -75,10 +78,10 @@ class FriendsList extends StatelessWidget {
                             child: TextFormField(
                               onChanged: (value) async{
                                 if(value==""){
-                                  appCubit.emptythesearchlist();
+                                  conversationCubit.emptyTheSearchList();
                                 }
                                 else{
-                                  await appCubit.getsearchedlist(value);
+                                  await conversationCubit.getSearchedList(value);
                                 }
                               },
                               decoration: InputDecoration(
@@ -99,28 +102,37 @@ class FriendsList extends StatelessWidget {
                     height: 10,
                   ),
                   Expanded(
-                    child: (!appCubit.issearch)?
+                    child: (!conversationCubit.isSearch)?
                     StreamBuilder(
-                      stream: appCubit.getStreamOfConversations(appCubit),
+                      stream: conversationCubit.getStreamOfConversations(),
                       builder: (context, snapshot) {
                         if(snapshot.hasData){
-                          return ListView.builder(
-                            itemCount: snapshot.data.docs.length,
-                            itemBuilder: (context, index) {
-                              return buildSingleConversation(appCubit, snapshot, index, context);
-                            },
-                          );
+                          if(snapshot.data.docs.length==0){
+                            return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
+                          }
+                          else{
+                            return ListView.builder(
+                              itemCount: snapshot.data.docs.length,
+                              itemBuilder: (context, index) {
+                                return buildSingleConversation(conversationCubit, snapshot, index, context,ChatRoomCubit.get(context),AuthCubit.get(context));
+                              },
+                            );
+                          }
                         }
                         else{
-                          return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
+                          return Container(child: Center(child:CircularProgressIndicator()));
                         }
 
                       },
-                    ) : ListView.builder(
-                      itemCount:  appCubit.searchlist.length,
+                    ) : (conversationCubit.searchList.length>0)?ListView.builder(
+                      itemCount:  conversationCubit.searchList.length,
                       itemBuilder: (context, index) {
-                        return buildSingleItemInSearchList(appCubit, index, context);
+                        return buildSingleItemInSearchList(conversationCubit, index, context,AuthCubit.get(context),ChatRoomCubit.get(context));
                       },
+                    ):Container(
+                      child: Center(
+                        child: Text("NO USERS FOUND WITH THIS NAME"),
+                      ),
                     ),
                   )
                 ],

@@ -1,5 +1,5 @@
-import 'package:chatapp/MainCubit/AppCubit.dart';
-import 'package:chatapp/MainCubit/AppCubitStates.dart';
+import 'package:chatapp/AuthCubit/AuthCubit.dart';
+import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/Widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,11 +18,8 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
   bool issecure=true;
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit,AppCubitStates>(
+    return BlocConsumer<AuthCubit,AuthCubitStates>(
       listener: (context, state) {
-        if(state is exitapp){
-          SystemNavigator.pop();
-        }
       },
       builder: (context, state) {
         return Scaffold(
@@ -30,7 +27,7 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
               child: CustomAppbar("اضافة مستخدم"),
               preferredSize: Size.fromHeight(70),
             ),
-            body: BlocConsumer<AppCubit,AppCubitStates>(
+            body: BlocConsumer<AuthCubit,AuthCubitStates>(
               listener: (context, state) {
                 if(state is emptyfeildregistersstate){
                   getsnackbar(context,"توجد حقول فارغة");
@@ -47,7 +44,7 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
                 }
               },
               builder: (context, state) {
-                AppCubit v =AppCubit.get(context);
+                AuthCubit v =AuthCubit.get(context);
                 if(state is loaddatafromfirebase){
                   return Container(
                     child: Center(
@@ -107,12 +104,6 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
                           }, child: Text("تسجيل مستخدم جديد",style: TextStyle(
                               fontSize: 20
                           ),)),
-                          // TextButton(onPressed: ()async{
-                          //   //Navigator.push(context, MaterialPageRoute(builder: (context) => Userslist(),));
-                          //   // v.register(username,password);
-                          // }, child: Text("اظهار المستخدمون",style: TextStyle(
-                          //     fontSize: 20
-                          // ),))
                         ],
                       ),
                     ),

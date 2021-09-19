@@ -1,22 +1,21 @@
-import 'dart:convert';
-
-import 'package:chatapp/Models/Massage.dart';
 import 'package:chatapp/Models/User.dart';
 
-class conversation {
+class Conversation {
   String lastMassage="now you can chat with this person";
   user firstPerson;
   user secondPerson;
+  String dateOfConversation;
   String istyping="false";
-  conversation.fromJson(Map<String, dynamic> json) {
+  Conversation.fromJson(Map<String, dynamic> json) {
     lastMassage = json['lastMassage'];
     firstPerson =user.fromJson(json['firstPerson']);
     secondPerson =user.fromJson(json['secondPerson']);
     istyping=json['istyping'];
+    dateOfConversation=json['dateOfConversation'];
   }
 
 
-  conversation(this.firstPerson, this.secondPerson);
+  Conversation(this.firstPerson, this.secondPerson);
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
@@ -24,6 +23,7 @@ class conversation {
     data['secondPerson']=secondPerson.toJson();
     data['lastMassage']=lastMassage;
     data['istyping']=istyping;
+    data['dateOfConversation']=dateOfConversation;
     return data;
   }
 }

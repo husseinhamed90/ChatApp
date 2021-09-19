@@ -1,8 +1,10 @@
-import 'package:chatapp/MainCubit/AppCubitStates.dart';
-import 'package:chatapp/ResuableWidgets.dart';
+import 'package:chatapp/AuthCubit/AuthCubit.dart';
+import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
+import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
+import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import '../Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
-import '../MainCubit/AppCubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,13 +29,10 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
   Widget build(BuildContext context) {
        return Scaffold(
 
-         body:  BlocConsumer<AppCubit,AppCubitStates>(
+         body:  BlocConsumer<AuthCubit,AuthCubitStates>(
            listener: (context, state) async {
              if(state is GetUserIDSate){
                Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
-             }
-             else if(state is noadmindatafound){
-               getsnackbar(context,"لا توجد بيانات للادمن حتي الان");
              }
              else if(state is invaliduser){
                getsnackbar(context,"كلمة المرور او اسم المستخدم غير صحيح");
@@ -43,7 +42,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
              }
            },
            builder: (context, state) {
-             AppCubit v =AppCubit.get(context);
+             AuthCubit v =AuthCubit.get(context);
              if(v.isloging){
                return Container(
                  color: Colors.white,
@@ -102,7 +101,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                            ),
                            SizedBox(height: 30,),
                            TextButton(onPressed: ()async{
-                            await v.loginwithusernameandpassword(username.text,password.text);
+                            await v.loginwithusernameandpassword(username.text,password.text,ConversationsCubit.get(context),ChatRoomCubit.get(context));
                            }, child: Text("تسجيل دخول",style: TextStyle(
                                fontSize: 20
                            ),)),
