@@ -26,7 +26,6 @@ class ChatScreen extends StatelessWidget {
       body:BlocConsumer<ChatRoomCubit,ChatRoomCubitStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          print("ChatRoomCubit is rebuild");
           ChatRoomCubit appCubit =ChatRoomCubit.get(context);
           return Container(
             decoration: BoxDecoration(
@@ -107,7 +106,6 @@ class ChatScreen extends StatelessWidget {
                       width: (MediaQuery.of(context).size.width-20)*0.15,
                       child: FloatingActionButton(onPressed: () async {
                         if(controller.text!=""){
-
                           appCubit.sendMessage(controller.text);
                           controller.text="";
                         }
@@ -122,6 +120,4 @@ class ChatScreen extends StatelessWidget {
       )
     );
   }
-
-
 }

@@ -21,3 +21,7 @@ class loaddatafromfirebase extends AuthCubitStates{}
 class GetUserIDDate extends AuthCubitStates{}
 
 class noUserFound extends  AuthCubitStates{}
+
+class PasswordVisibilityState extends AuthCubitStates{}
+
+class TextVisibilityStateChanged extends AuthCubitStates{}

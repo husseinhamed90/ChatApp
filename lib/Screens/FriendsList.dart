@@ -18,7 +18,6 @@ class FriendsList extends StatelessWidget {
       body: BlocConsumer<ConversationsCubit,ConversationsCubitStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          print("conversationCubit is rebuild");
           ConversationsCubit conversationCubit =ConversationsCubit.get(context);
           return SafeArea(
             child: Container(

@@ -57,10 +57,16 @@ class AuthCubit extends Cubit<AuthCubitStates> {
     }
   }
 
+  void resetTextVisibilityState(){
+    isSecure = true;
+    emit(TextVisibilityStateChanged());
+  }
+
   Future<void> loginSuccessful(UserCredential userCredential, ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
     user newUser = await getUserAccountInformation(userCredential);
     if(newUser!=null){
       currentUser=newUser;
+      isSecure=true;
       chatRoomCubit.setCurrentUser(currentUser);
       conversationsCubit.setCurrentUser(newUser);
       emit(GetUserIDDate());
@@ -68,6 +74,12 @@ class AuthCubit extends Cubit<AuthCubitStates> {
     else{
       emit(noUserFound());
     }
+  }
+  bool isSecure=true;
+
+  void changePasswordVisibilityState(){
+    isSecure=!isSecure;
+    emit(PasswordVisibilityState());
   }
 
   Future<user>createAccountInFireBaeAuthentication(TextEditingController username, TextEditingController password)async{
