@@ -18,4 +18,6 @@ class loginsistart extends AuthCubitStates{}
 
 class loaddatafromfirebase extends AuthCubitStates{}
 
-class GetUserIDSate extends AuthCubitStates{}
+class GetUserIDDate extends AuthCubitStates{}
+
+class noUserFound extends  AuthCubitStates{}

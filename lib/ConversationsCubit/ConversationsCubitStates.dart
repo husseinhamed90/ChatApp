@@ -13,3 +13,5 @@ class SearchedListCome extends ConversationsCubitStates{}
 class searchlistisNowEmpty extends ConversationsCubitStates{}
 
 class currentUserUpdated extends ConversationsCubitStates{}
+
+class ThereIsAlreadyAConversationFound extends ConversationsCubitStates{}

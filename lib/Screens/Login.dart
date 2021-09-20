@@ -13,14 +13,7 @@ class Login extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> with WidgetsBindingObserver{
-
-  @override
-    void initState() {
-      // TODO: implement initState
-      WidgetsBinding.instance.addObserver(this);
-      super.initState();
-    }
+class _LoginState extends State<Login>{
 
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
@@ -31,7 +24,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
 
          body:  BlocConsumer<AuthCubit,AuthCubitStates>(
            listener: (context, state) async {
-             if(state is GetUserIDSate){
+             if(state is GetUserIDDate){
                Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
              }
              else if(state is invaliduser){
@@ -43,7 +36,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
            },
            builder: (context, state) {
              AuthCubit v =AuthCubit.get(context);
-             if(v.isloging){
+             if(state is loginsistart){
                return Container(
                  color: Colors.white,
                  child: Center(
@@ -101,7 +94,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                            ),
                            SizedBox(height: 30,),
                            TextButton(onPressed: ()async{
-                            await v.loginwithusernameandpassword(username.text,password.text,ConversationsCubit.get(context),ChatRoomCubit.get(context));
+                            await v.loginWithUsernameAndPassword(username.text,password.text,ConversationsCubit.get(context),ChatRoomCubit.get(context));
                            }, child: Text("تسجيل دخول",style: TextStyle(
                                fontSize: 20
                            ),)),
@@ -117,10 +110,8 @@ class _LoginState extends State<Login> with WidgetsBindingObserver{
                  ),
                );
              }
-
            },
          )
        );
   }
-
 }

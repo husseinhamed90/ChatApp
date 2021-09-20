@@ -1,10 +1,12 @@
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Screens/Login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:provider/provider.dart';
@@ -16,8 +18,11 @@ void main() async{
 }
 
 class MyApp extends StatelessWidget {
+
+
   @override
   Widget build(BuildContext context) {
+    FirebaseApiServices.init();
     return MultiProvider(
       providers: [
         BlocProvider(create: (_) => AuthCubit(),),

@@ -1,5 +1,8 @@
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
+import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
+import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +14,7 @@ class Register extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<Register> with WidgetsBindingObserver {
+class _LoginState extends State<Register> {
 
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
@@ -29,7 +32,11 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
             ),
             body: BlocConsumer<AuthCubit,AuthCubitStates>(
               listener: (context, state) {
-                if(state is emptyfeildregistersstate){
+
+                if(state is userregistered){
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FriendsList()));
+                }
+                else if(state is emptyfeildregistersstate){
                   getsnackbar(context,"توجد حقول فارغة");
                 }
                 else if(state is accountalreadyexists){
@@ -44,7 +51,7 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
                 }
               },
               builder: (context, state) {
-                AuthCubit v =AuthCubit.get(context);
+                AuthCubit appCubit =AuthCubit.get(context);
                 if(state is loaddatafromfirebase){
                   return Container(
                     child: Center(
@@ -100,7 +107,7 @@ class _LoginState extends State<Register> with WidgetsBindingObserver {
                           SizedBox(height: 30,),
                           TextButton(onPressed: ()async{
 
-                            v.register(username,password);
+                            appCubit.register(username,password,ConversationsCubit.get(context),ChatRoomCubit.get(context));
                           }, child: Text("تسجيل مستخدم جديد",style: TextStyle(
                               fontSize: 20
                           ),)),

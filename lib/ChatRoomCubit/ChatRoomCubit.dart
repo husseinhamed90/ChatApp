@@ -4,6 +4,7 @@ import 'package:chatapp/ChatRoomCubit/ChatRoomStates.dart';
 import 'package:chatapp/Models/Conversation.dart';
 import 'package:chatapp/Models/Message.dart';
 import 'package:chatapp/Models/User.dart';
+import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,77 +12,61 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
   ChatRoomCubit() : super(initialState());
-
   static ChatRoomCubit get(BuildContext context) => BlocProvider.of(context);
+  user currentUser;
+  user chosenUser;
+  Conversation currentConversation;
+  int pageSize=6;
 
- user currentUser;
- CollectionReference usersCollection = FirebaseFirestore.instance.collection('Users');
- user chosenUser;
- Conversation currentConversation;
- int pageSize=6;
-
- DocumentReference chosenUserChat() => usersCollection.doc(currentUser.id).collection("chats").doc(chosenUser.id);
-
- DocumentReference currentUserChat() => usersCollection.doc(chosenUser.id).collection("chats").doc(currentUser.id);
-
- Stream<QuerySnapshot> streamOfMessages() =>chosenUserChat().collection("Messages").orderBy("timeStamp").limitToLast(pageSize).snapshots();
+  Stream<QuerySnapshot> streamOfMessages() {
+    return FirebaseApiServices.streamOfMessages(currentUser.id,chosenUser.id,pageSize);
+  }
 
 
- void setCurrentUser(user user){
-   currentUser=user;
+  void setCurrentUser(user user){
+    currentUser=user;
    emit(currentUserUpdated());
- }
+  }
 
   void setChosenUser(user user){
     chosenUser=user;
     emit(currentUserUpdated());
   }
- Future setChosenUserAndCurrentConversation(user chosen,Conversation conversation,AuthCubit appCubit)async{
+
+  Future setChosenUserAndCurrentConversation(user chosen,Conversation conversation,AuthCubit appCubit)async{
    chosenUser=chosen;
    currentConversation=conversation;
    currentUser=appCubit.currentUser;
-  emit(searchbarresetState());
- }
+   emit(searchbarresetState());
+  }
 
- Future sendMessage(String massage)async{
-   resetPageSize();
-   Message newMessage =Message(massage, DateTime.now().toString(), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
-   if(currentConversation==null){
+  Future sendMessage(String massage)async{
+    resetPageSize();
+    Message newMessage =Message(massage, DateTime.now().toString(), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
+    if(currentConversation==null){
      List<Message>messages=[];
      messages.add(newMessage);
      await addnewconversation(messages);
-   }
-   await updateMessagesInFirebase(newMessage);
- }
+    }
+    await FirebaseApiServices.updateMessagesInFirebase(newMessage,currentUser.id,chosenUser.id);
+  }
 
- Future updateMessagesInFirebase(Message newMessage)async{
-   await chosenUserChat().collection("Messages").add(newMessage.toJson());
-   await chosenUserChat().update({'lastMassage':newMessage.massage,"istyping": "false","dateOfConversation":newMessage.timeStamp});
-
-   await currentUserChat().collection("Messages").add(newMessage.toJson());
-   await currentUserChat().update({'lastMassage':newMessage.massage,"istyping": "false","dateOfConversation":newMessage.timeStamp});
- }
 
 
  Future addnewconversation(List<Message>messages)async{
-
    Conversation newConversation =Conversation(currentUser, chosenUser);
    newConversation.dateOfConversation=DateTime.now().millisecondsSinceEpoch.toString();
-
-   Conversation createReceiverConversation =Conversation(chosenUser, currentUser);
-   createReceiverConversation.dateOfConversation=DateTime.now().millisecondsSinceEpoch.toString();
-
-   await chosenUserChat().set(newConversation.toJson()).then((value) async {
-     currentConversation=newConversation;
-   });
-
-   await currentUserChat().set(createReceiverConversation.toJson());
+   Conversation receiverConversation =Conversation(chosenUser, currentUser);
+   receiverConversation.dateOfConversation=DateTime.now().millisecondsSinceEpoch.toString();
+   currentConversation=newConversation;
+   await FirebaseApiServices.addConversationToUserAccount(currentUser.id, chosenUser.id, newConversation, receiverConversation);
    emit(newconversationAddedSuccssefully());
  }
 
  Future<void> changeTypingState(bool typingState) async {
-   await chosenUserChat().update({"istyping": typingState.toString()});
-   await currentUserChat().update({"istyping": typingState.toString()});
+   await FirebaseApiServices.changeTypingState(typingState, currentUser.id, chosenUser.id);
+
+   emit(TypingStateIsChanged());
  }
 
  List<Message> getListOfMessages(QuerySnapshot sender) {

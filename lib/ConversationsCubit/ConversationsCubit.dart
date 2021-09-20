@@ -3,6 +3,7 @@ import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubitStates.dart';
 import 'package:chatapp/Models/Conversation.dart';
 import 'package:chatapp/Models/User.dart';
+import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,9 +14,12 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
 
   static ConversationsCubit get(BuildContext context) => BlocProvider.of(context);
   user chosenUser;
-  CollectionReference usersCollection = FirebaseFirestore.instance.collection('Users');
   user currentUser;
-  DocumentReference chosenUserChat() => usersCollection.doc(currentUser.id).collection("chats").doc(chosenUser.id);
+
+  bool isSearch=false;
+
+  List<user>searchList=[];
+
   Conversation currentConversation;
 
 
@@ -35,28 +39,27 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
     chatRoomCubit.setChosenUser(chosenUser);
     chatRoomCubit.resetPageSize();
     chatRoomCubit.resetCurrentConversation();
-    if(conversation==null){
-      await chosenUserChat().get().then((conversationDocument) async {
-        if(conversationDocument.data()!=null){
+    await checkIfThereIsAlreadyAConversationFound(conversation);
 
+    emit(searchbarresetState());
+  }
+
+  Future<void> checkIfThereIsAlreadyAConversationFound(Conversation conversation) async {
+    if(conversation==null){
+      await FirebaseApiServices.getChosenUserChat(currentUser.id,chosenUser.id).get().then((conversationDocument) async {
+        if(conversationDocument.data()!=null){
           currentConversation=Conversation.fromJson(conversationDocument.data());
         }
         emit(newconversationAddedSuccssefully());
       });
     }
     else{
-      currentConversation =conversation;
+      currentConversation = conversation;
+      emit(ThereIsAlreadyAConversationFound());
     }
-
-    emit(searchbarresetState());
   }
 
-  Stream<QuerySnapshot> getStreamOfConversations() => usersCollection.doc(currentUser.id).collection("chats").orderBy("dateOfConversation",descending: true).snapshots();
-
-
-  bool isSearch=false;
-
-  List<user>searchList=[];
+  Stream<QuerySnapshot> getStreamOfConversations() => FirebaseApiServices.getStreamOfConversations(currentUser.id);
 
   void getUsers(QuerySnapshot value, String searchedWord) {
     searchList=[];
@@ -85,7 +88,7 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
   }
 
   Future getSearchedList(String searchedWord)async{
-    QuerySnapshot querySnapshotOfUsers =await usersCollection.get();
+    QuerySnapshot querySnapshotOfUsers =await FirebaseApiServices.usersCollection.get();
     getUsers(querySnapshotOfUsers, searchedWord);
   }
 

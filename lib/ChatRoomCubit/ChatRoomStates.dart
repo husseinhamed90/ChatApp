@@ -13,3 +13,5 @@ class increasePageSizeState extends ChatRoomCubitStates{}
 class resetPageSizeState extends ChatRoomCubitStates{}
 
 class resetCurrentConversationState extends ChatRoomCubitStates{}
+
+class TypingStateIsChanged extends ChatRoomCubitStates{}
