@@ -129,7 +129,7 @@ InkWell buildSingleConversation(ConversationsCubit conversationsCubit, AsyncSnap
   );
 }
 
-Widget getsnackbar(BuildContext context,String message){
+void getSnackBar(BuildContext context,String message){
   final snackBar = SnackBar(
     content: Text(message),
     action: SnackBarAction(

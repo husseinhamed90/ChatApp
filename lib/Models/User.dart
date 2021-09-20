@@ -1,9 +1,9 @@
 
 
-class user{
+class UserAccount{
   String name;
   String password;
-  String usertype;
+  String userType;
   String id;
   String isfirsttime;
   String isonline;
@@ -13,12 +13,12 @@ class user{
 
 
 
-  user(this.name, this.password, this.usertype,this.id,[this.isfirsttime="true",this.isonline="false"]);
+  UserAccount(this.name, this.password, this.userType,this.id,[this.isfirsttime="true",this.isonline="false"]);
 
-  user.fromJson(Map<String, dynamic> json) {
+  UserAccount.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     password = json['password'];
-    usertype =json['usertype'];
+    userType =json['usertype'];
     id=json['id'];
     isfirsttime=json['isfirsttime'];
     imagepath =json['image'];
@@ -29,7 +29,7 @@ class user{
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = this.name;
     data['password'] = this.password;
-    data['usertype']=this.usertype;
+    data['usertype']=this.userType;
     data['id']=this.id;
     data['image']=this.imagepath;
     data['isfirsttime']=this.isfirsttime;

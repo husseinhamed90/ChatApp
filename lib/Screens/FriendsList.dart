@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';

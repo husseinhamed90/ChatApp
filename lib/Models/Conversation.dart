@@ -2,14 +2,14 @@ import 'package:chatapp/Models/User.dart';
 
 class Conversation {
   String lastMassage="now you can chat with this person";
-  user firstPerson;
-  user secondPerson;
+  UserAccount firstPerson;
+  UserAccount secondPerson;
   String dateOfConversation;
   String istyping="false";
   Conversation.fromJson(Map<String, dynamic> json) {
     lastMassage = json['lastMassage'];
-    firstPerson =user.fromJson(json['firstPerson']);
-    secondPerson =user.fromJson(json['secondPerson']);
+    firstPerson =UserAccount.fromJson(json['firstPerson']);
+    secondPerson =UserAccount.fromJson(json['secondPerson']);
     istyping=json['istyping'];
     dateOfConversation=json['dateOfConversation'];
   }

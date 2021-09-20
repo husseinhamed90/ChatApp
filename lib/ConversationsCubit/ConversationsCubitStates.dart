@@ -1,17 +1,17 @@
 abstract class ConversationsCubitStates {}
 
-class initialState extends ConversationsCubitStates{}
+class InitialState extends ConversationsCubitStates{}
 
-class getConversationsDetailsState extends ConversationsCubitStates{}
+class GetConversationsDetailsState extends ConversationsCubitStates{}
 
-class newconversationAddedSuccssefully extends ConversationsCubitStates{}
+class NewConversationAddedSuccessfully extends ConversationsCubitStates{}
 
-class searchbarresetState extends ConversationsCubitStates{}
+class SearchBarState extends ConversationsCubitStates{}
 
 class SearchedListCome extends ConversationsCubitStates{}
 
-class searchlistisNowEmpty extends ConversationsCubitStates{}
+class SearchListIsNowEmpty extends ConversationsCubitStates{}
 
-class currentUserUpdated extends ConversationsCubitStates{}
+class CurrentUserUpdated extends ConversationsCubitStates{}
 
 class ThereIsAlreadyAConversationFound extends ConversationsCubitStates{}

@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomStates.dart';
 import 'package:chatapp/Helpers/ResuableWidgets.dart';
@@ -52,7 +54,6 @@ class ChatScreen extends StatelessWidget {
                           }
                           else{
                             List<Message>messages=appCubit.getListOfMessages(snapshot.data);
-                            //  if(snapshot.data)
                             return RefreshIndicator(
                               onRefresh:() async =>  appCubit.increasePageSize(),
                               child: ListView.builder(

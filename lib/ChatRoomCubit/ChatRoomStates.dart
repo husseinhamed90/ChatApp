@@ -1,17 +1,17 @@
 abstract  class ChatRoomCubitStates{}
 
-class initialState extends ChatRoomCubitStates{}
+class InitialState extends ChatRoomCubitStates{}
 
-class searchbarresetState extends ChatRoomCubitStates{}
+class SearchBarSetState extends ChatRoomCubitStates{}
 
-class newconversationAddedSuccssefully extends ChatRoomCubitStates{}
+class NewConversationAddedSuccessfully extends ChatRoomCubitStates{}
 
-class currentUserUpdated extends ChatRoomCubitStates{}
+class CurrentUserUpdated extends ChatRoomCubitStates{}
 
-class increasePageSizeState extends ChatRoomCubitStates{}
+class IncreasePageSizeState extends ChatRoomCubitStates{}
 
-class resetPageSizeState extends ChatRoomCubitStates{}
+class ResetPageSizeState extends ChatRoomCubitStates{}
 
-class resetCurrentConversationState extends ChatRoomCubitStates{}
+class ResetCurrentConversationState extends ChatRoomCubitStates{}
 
 class TypingStateIsChanged extends ChatRoomCubitStates{}

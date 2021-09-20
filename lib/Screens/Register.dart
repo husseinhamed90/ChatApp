@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
@@ -6,7 +8,6 @@ import 'package:chatapp/Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:toast/toast.dart'as ss;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,26 +29,26 @@ class Register extends StatelessWidget {
           body: BlocConsumer<AuthCubit,AuthCubitStates>(
             listener: (context, state) {
 
-              if(state is userregistered){
+              if(state is UserRegistered){
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FriendsList()));
               }
-              else if(state is emptyfeildregistersstate){
-                getsnackbar(context,"توجد حقول فارغة");
+              else if(state is EmptyFieldRegistersState){
+                getSnackBar(context,"توجد حقول فارغة");
               }
-              else if(state is accountalreadyexists){
-                getsnackbar(context,"هذا الاسم موجود مسبقا");
+              else if(state is AccountAlreadyExists){
+                getSnackBar(context,"هذا الاسم موجود مسبقا");
               }
-              else if(state is weakpassword){
-                getsnackbar(context,"كلمة المرور ضعيفة");
+              else if(state is WeakPassword){
+                getSnackBar(context,"كلمة المرور ضعيفة");
               }
-              else if(state is userregistered){
+              else if(state is UserRegistered){
                 ss.Toast.show("تم تسجيل المستخدم بنجاج", context, duration: 2, gravity: ss.Toast.BOTTOM);
                 Navigator.pop(context);
               }
             },
             builder: (context, state) {
               AuthCubit appCubit =AuthCubit.get(context);
-              if(state is loaddatafromfirebase){
+              if(state is LoadDataFromFirebase){
                 return Container(
                   child: Center(
                     child: CircularProgressIndicator(),

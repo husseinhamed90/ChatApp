@@ -1,26 +1,26 @@
 abstract class AuthCubitStates {}
 
-class initialState extends AuthCubitStates{}
+class InitialState extends AuthCubitStates{}
 
-class invaliduser extends AuthCubitStates{}
+class InvalidUser extends AuthCubitStates{}
 
-class emptyfeildsstate extends AuthCubitStates{}
+class EmptyFieldsFoundState extends AuthCubitStates{}
 
-class userregistered extends AuthCubitStates{}
+class UserRegistered extends AuthCubitStates{}
 
-class emptyfeildregistersstate extends AuthCubitStates{}
+class EmptyFieldRegistersState extends AuthCubitStates{}
 
-class accountalreadyexists extends AuthCubitStates{}
+class AccountAlreadyExists extends AuthCubitStates{}
 
-class weakpassword extends AuthCubitStates{}
+class WeakPassword extends AuthCubitStates{}
 
-class loginsistart extends AuthCubitStates{}
+class LoginIsStart extends AuthCubitStates{}
 
-class loaddatafromfirebase extends AuthCubitStates{}
+class LoadDataFromFirebase extends AuthCubitStates{}
 
 class GetUserIDDate extends AuthCubitStates{}
 
-class noUserFound extends  AuthCubitStates{}
+class NoUserFound extends  AuthCubitStates{}
 
 class PasswordVisibilityState extends AuthCubitStates{}
 

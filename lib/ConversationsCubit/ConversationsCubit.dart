@@ -10,30 +10,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ConversationsCubit extends Cubit<ConversationsCubitStates> {
 
-  ConversationsCubit() : super(initialState());
+  ConversationsCubit() : super(InitialState());
 
   static ConversationsCubit get(BuildContext context) => BlocProvider.of(context);
-  user chosenUser;
-  user currentUser;
+  UserAccount chosenUser;
+  UserAccount currentUser;
 
   bool isSearch=false;
 
-  List<user>searchList=[];
+  List<UserAccount>searchList=[];
 
   Conversation currentConversation;
 
 
-  void setCurrentUser(user user){
+  void setCurrentUser(UserAccount user){
     currentUser=user;
-    emit(currentUserUpdated());
+    emit(CurrentUserUpdated());
   }
   void setCurrentConversation(Conversation conversation,ChatRoomCubit chatRoomCubit,AuthCubit appCubit){
     currentConversation=conversation;
     chatRoomCubit.setChosenUserAndCurrentConversation(chosenUser, currentConversation,appCubit);
-    emit(getConversationsDetailsState());
+    emit(GetConversationsDetailsState());
   }
 
-  Future setChosenUser(user chosen,ChatRoomCubit chatRoomCubit,{Conversation conversation})async{
+  Future setChosenUser(UserAccount chosen,ChatRoomCubit chatRoomCubit,{Conversation conversation})async{
     chosenUser=chosen;
     currentConversation=null;
     chatRoomCubit.setChosenUser(chosenUser);
@@ -41,7 +41,7 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
     chatRoomCubit.resetCurrentConversation();
     await checkIfThereIsAlreadyAConversationFound(conversation);
 
-    emit(searchbarresetState());
+    emit(SearchBarState());
   }
 
   Future<void> checkIfThereIsAlreadyAConversationFound(Conversation conversation) async {
@@ -50,7 +50,7 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
         if(conversationDocument.data()!=null){
           currentConversation=Conversation.fromJson(conversationDocument.data());
         }
-        emit(newconversationAddedSuccssefully());
+        emit(NewConversationAddedSuccessfully());
       });
     }
     else{
@@ -64,16 +64,16 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
   void getUsers(QuerySnapshot value, String searchedWord) {
     searchList=[];
     value.docs.forEach((element) {
-      if(user.fromJson(element.data()).id!=currentUser.id) {
-        if (user.fromJson(element.data()).name.startsWith(searchedWord)) {
+      if(UserAccount.fromJson(element.data()).id!=currentUser.id) {
+        if (UserAccount.fromJson(element.data()).name.startsWith(searchedWord)) {
           bool isFound =false;
           searchList.forEach((item) {
-            if(user.fromJson(element.data()).id==item.id){
+            if(UserAccount.fromJson(element.data()).id==item.id){
               isFound=true;
             }
           });
           if(isFound==false){
-            searchList.add(user.fromJson(element.data()));
+            searchList.add(UserAccount.fromJson(element.data()));
           }
 
         }
@@ -84,7 +84,7 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
 
   void emptyTheSearchList(){
     searchList=[];
-    emit(searchlistisNowEmpty());
+    emit(SearchListIsNowEmpty());
   }
 
   Future getSearchedList(String searchedWord)async{
@@ -95,6 +95,6 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
   void changeSearchBarState(){
     isSearch=!isSearch;
     searchList=[];
-    emit(searchbarresetState());
+    emit(SearchBarState());
   }
 }

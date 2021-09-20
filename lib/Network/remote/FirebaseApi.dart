@@ -94,7 +94,7 @@ class FirebaseApiServices{
         password: password + "steponeapp");
   }
 
-  static Future createNewDocumentForNewUserInFirebase(user newUser) async {
+  static Future createNewDocumentForNewUserInFirebase(UserAccount newUser) async {
     await usersCollection.doc(newUser.id).set(newUser.toJson());
   }
 }

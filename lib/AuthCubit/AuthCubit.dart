@@ -12,11 +12,11 @@ import 'package:bloc/bloc.dart';
 
 class AuthCubit extends Cubit<AuthCubitStates> {
 
-  AuthCubit() : super(initialState());
+  AuthCubit() : super(InitialState());
 
   static AuthCubit get(BuildContext context) => BlocProvider.of(context);
 
-  user currentUser;
+  UserAccount currentUser;
 
   bool checkvalidatyofinputs(String username,String password){
     if(username == "" || password == ""){
@@ -27,10 +27,10 @@ class AuthCubit extends Cubit<AuthCubitStates> {
     }
   }
 
-  Future<user>getUserAccountInformation(UserCredential userCredential)async{
+  Future<UserAccount>getUserAccountInformation(UserCredential userCredential)async{
     DocumentSnapshot querySnapshot = await FirebaseApiServices.getUserAccountData(userCredential);
     if(querySnapshot.data()!=null){
-      return user.fromJson(querySnapshot.data());
+      return UserAccount.fromJson(querySnapshot.data());
     }
     else{
       return null;
@@ -38,9 +38,9 @@ class AuthCubit extends Cubit<AuthCubitStates> {
   }
 
   Future<void> loginWithUsernameAndPassword(String username, String password,ConversationsCubit conversationsCubit,ChatRoomCubit chatRoomCubit) async {
-    emit(loginsistart());
+    emit(LoginIsStart());
     if (!checkvalidatyofinputs(username,password)) {
-      emit(emptyfeildsstate());
+      emit(EmptyFieldsFoundState());
     }
     else {
       await tryLogin(username, password, conversationsCubit, chatRoomCubit);
@@ -53,7 +53,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
       await loginSuccessful(userCredential, conversationsCubit, chatRoomCubit);
     }
     else{
-      emit(invaliduser());
+      emit(InvalidUser());
     }
   }
 
@@ -63,7 +63,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
   }
 
   Future<void> loginSuccessful(UserCredential userCredential, ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
-    user newUser = await getUserAccountInformation(userCredential);
+    UserAccount newUser = await getUserAccountInformation(userCredential);
     if(newUser!=null){
       currentUser=newUser;
       isSecure=true;
@@ -72,7 +72,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
       emit(GetUserIDDate());
     }
     else{
-      emit(noUserFound());
+      emit(NoUserFound());
     }
   }
   bool isSecure=true;
@@ -82,32 +82,32 @@ class AuthCubit extends Cubit<AuthCubitStates> {
     emit(PasswordVisibilityState());
   }
 
-  Future<user>createAccountInFireBaeAuthentication(TextEditingController username, TextEditingController password)async{
+  Future<UserAccount>createAccountInFireBaeAuthentication(TextEditingController username, TextEditingController password)async{
     UserCredential userCredential= await FirebaseApiServices.createUserInFirebase(username.text, password.text);
-    return user(username.text, password.text, 'user', userCredential.user.uid);
+    return UserAccount(username.text, password.text, 'user', userCredential.user.uid);
   }
 
 
-  Future<void>createNewUser(user newUser,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit)async{
+  Future<void>createNewUser(UserAccount newUser,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit)async{
     await FirebaseApiServices.createNewDocumentForNewUserInFirebase(newUser);
     currentUser=newUser;
     chatRoomCubit.setCurrentUser(currentUser);
     conversationsCubit.setCurrentUser(newUser);
-    emit(userregistered());
+    emit(UserRegistered());
   }
 
   Future<void>registerNewUser(TextEditingController username, TextEditingController password,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit)async{
     try {
-      emit(loaddatafromfirebase());
-      user newuser =await createAccountInFireBaeAuthentication(username,password);
+      emit(LoadDataFromFirebase());
+      UserAccount newuser =await createAccountInFireBaeAuthentication(username,password);
       await createNewUser(newuser,conversationsCubit,chatRoomCubit);
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        emit(weakpassword());
+        emit(WeakPassword());
       }
       else if (e.code == 'email-already-in-use') {
-        emit(accountalreadyexists());
+        emit(AccountAlreadyExists());
       }
     } catch (e) {
       print(e);
@@ -116,7 +116,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
 
   Future register(TextEditingController username, TextEditingController password,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
     if (!checkvalidatyofinputs(username.text, password.text)) {
-      emit(emptyfeildregistersstate());
+      emit(EmptyFieldRegistersState());
     }
     else {
       await registerNewUser(username,password, conversationsCubit,  chatRoomCubit);

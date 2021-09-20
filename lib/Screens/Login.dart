@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
@@ -22,16 +24,16 @@ class Login extends StatelessWidget {
             if(state is GetUserIDDate){
               Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
             }
-            else if(state is invaliduser){
-              getsnackbar(context,"كلمة المرور او اسم المستخدم غير صحيح");
+            else if(state is InvalidUser){
+              getSnackBar(context,"كلمة المرور او اسم المستخدم غير صحيح");
             }
-            else if(state is emptyfeildsstate){
-              getsnackbar(context,"توجد حقول فارغة");
+            else if(state is EmptyFieldsFoundState){
+              getSnackBar(context,"توجد حقول فارغة");
             }
           },
           builder: (context, state) {
             AuthCubit appCubit =AuthCubit.get(context);
-            if(state is loginsistart){
+            if(state is LoginIsStart){
               return Container(
                 color: Colors.white,
                 child: Center(

@@ -11,10 +11,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
-  ChatRoomCubit() : super(initialState());
+  ChatRoomCubit() : super(InitialState());
   static ChatRoomCubit get(BuildContext context) => BlocProvider.of(context);
-  user currentUser;
-  user chosenUser;
+  UserAccount currentUser;
+  UserAccount chosenUser;
   Conversation currentConversation;
   int pageSize=6;
 
@@ -23,21 +23,21 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
   }
 
 
-  void setCurrentUser(user user){
+  void setCurrentUser(UserAccount user){
     currentUser=user;
-   emit(currentUserUpdated());
+   emit(CurrentUserUpdated());
   }
 
-  void setChosenUser(user user){
+  void setChosenUser(UserAccount user){
     chosenUser=user;
-    emit(currentUserUpdated());
+    emit(CurrentUserUpdated());
   }
 
-  Future setChosenUserAndCurrentConversation(user chosen,Conversation conversation,AuthCubit appCubit)async{
+  Future setChosenUserAndCurrentConversation(UserAccount chosen,Conversation conversation,AuthCubit appCubit)async{
    chosenUser=chosen;
    currentConversation=conversation;
    currentUser=appCubit.currentUser;
-   emit(searchbarresetState());
+   emit(SearchBarSetState());
   }
 
   Future sendMessage(String massage)async{
@@ -60,7 +60,7 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
    receiverConversation.dateOfConversation=DateTime.now().millisecondsSinceEpoch.toString();
    currentConversation=newConversation;
    await FirebaseApiServices.addConversationToUserAccount(currentUser.id, chosenUser.id, newConversation, receiverConversation);
-   emit(newconversationAddedSuccssefully());
+   emit(NewConversationAddedSuccessfully());
  }
 
  Future<void> changeTypingState(bool typingState) async {
@@ -80,7 +80,7 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
   void resetCurrentConversation(){
     currentConversation=null;
-    emit(resetCurrentConversationState());
+    emit(ResetCurrentConversationState());
   }
 
  List<Message> sortMessages(List<Message> messages) {
@@ -88,14 +88,14 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
    return messages;
  }
 
- Future increasePageSize(){
+ void increasePageSize(){
    pageSize+=6;
-   emit(increasePageSizeState());
+   emit(IncreasePageSizeState());
  }
 
  void resetPageSize(){
    pageSize=6;
-   emit(resetPageSizeState());
+   emit(ResetPageSizeState());
  }
 
 }
