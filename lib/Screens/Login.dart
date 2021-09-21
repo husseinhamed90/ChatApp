@@ -4,6 +4,7 @@ import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import 'package:flutter/cupertino.dart';
 import '../Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
@@ -25,10 +26,10 @@ class Login extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
             }
             else if(state is InvalidUser){
-              getSnackBar(context,"كلمة المرور او اسم المستخدم غير صحيح");
+              getSnackBar(context,"The password or username is incorrect");
             }
             else if(state is EmptyFieldsFoundState){
-              getSnackBar(context,"توجد حقول فارغة");
+              getSnackBar(context,"There are empty fields");
             }
           },
           builder: (context, state) {
@@ -62,7 +63,7 @@ class Login extends StatelessWidget {
                               decoration: InputDecoration(
                                   border: new OutlineInputBorder(
                                       borderSide: new BorderSide(color: Colors.teal)),
-                                  labelText: "اسم المستخدم"
+                                  labelText: "Username"
 
                               ),
                             ),
@@ -77,7 +78,7 @@ class Login extends StatelessWidget {
                               decoration: InputDecoration(
                                   border: new OutlineInputBorder(
                                       borderSide: new BorderSide(color: Colors.teal)),
-                                  labelText: "كلمة السر",
+                                  labelText: "Password",
                                   suffixIcon: IconButton(
                                     onPressed: () {
                                       appCubit.changePasswordVisibilityState();
@@ -90,14 +91,14 @@ class Login extends StatelessWidget {
                           SizedBox(height: 30,),
                           TextButton(onPressed: ()async{
                             await appCubit.loginWithUsernameAndPassword(username.text,password.text,ConversationsCubit.get(context),ChatRoomCubit.get(context));
-                          }, child: Text("تسجيل دخول",style: TextStyle(
-                              fontSize: 20
+                          }, child: Text("Log in",style: TextStyle(
+                              fontSize: 20,fontWeight: FontWeight.bold
                           ),)),
                           TextButton(onPressed: (){
                             appCubit.resetTextVisibilityState();
                             Navigator.push(context, MaterialPageRoute(builder: (context) => Register(),));
-                          }, child: Text("عمل اكونت",style: TextStyle(
-                              fontSize: 20
+                          }, child: Text("Create Account",style: TextStyle(
+                              fontSize: 20,fontWeight: FontWeight.bold
                           ),)),
                         ],
                       ),

@@ -15,13 +15,9 @@ class ConversationsCubit extends Cubit<ConversationsCubitStates> {
   static ConversationsCubit get(BuildContext context) => BlocProvider.of(context);
   UserAccount chosenUser;
   UserAccount currentUser;
-
   bool isSearch=false;
-
   List<UserAccount>searchList=[];
-
   Conversation currentConversation;
-
 
   void setCurrentUser(UserAccount user){
     currentUser=user;

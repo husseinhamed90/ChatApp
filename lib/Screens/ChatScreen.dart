@@ -13,8 +13,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatelessWidget {
-  String name;
-  ChatScreen(this.name);
+  String name,userProfileImage;
+  ChatScreen(this.name,this.userProfileImage);
 
   TextEditingController controller=new TextEditingController();
   @override
@@ -22,13 +22,13 @@ class ChatScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: PreferredSize(
-        child: CustomAppbar(name),
-        preferredSize: Size.fromHeight(70),
+        child: CustomAppbar(title: name,userProfileImage: userProfileImage,),
+        preferredSize: Size.fromHeight(65),
       ),
       body:BlocConsumer<ChatRoomCubit,ChatRoomCubitStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          ChatRoomCubit appCubit =ChatRoomCubit.get(context);
+          ChatRoomCubit chatRoomCubit =ChatRoomCubit.get(context);
           return Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -37,12 +37,12 @@ class ChatScreen extends StatelessWidget {
                     colors: [Color(0xffE5F7FF), Color(0xffFFFFFF)])),
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               children: [
                 Expanded(
                   child: StreamBuilder(
-                      stream: appCubit.streamOfMessages(),
+                      stream: chatRoomCubit.streamOfMessages(),
                       builder: (context, snapshot) {
                         if(snapshot.hasData){
                           if(snapshot.data.docs.length==0){
@@ -53,11 +53,11 @@ class ChatScreen extends StatelessWidget {
                             );
                           }
                           else{
-                            List<Message>messages=appCubit.getListOfMessages(snapshot.data);
+                            List<Message>messages=chatRoomCubit.getListOfMessages(snapshot.data);
                             return RefreshIndicator(
-                              onRefresh:() async =>  appCubit.increasePageSize(),
+                              onRefresh:() async =>  chatRoomCubit.increasePageSize(),
                               child: ListView.builder(
-                                itemBuilder: (context, index) => buildMessageBody(messages, index, context),
+                                itemBuilder: (context, index) => buildMessageBody(messages, index, context,chatRoomCubit),
                                 itemCount: messages.length,
                               ),
                             );
@@ -80,13 +80,13 @@ class ChatScreen extends StatelessWidget {
                         controller: controller,
                         onChanged: (value) async{
                           if(value.isEmpty==false){
-                            if(appCubit.currentConversation!=null){
-                              await appCubit.changeTypingState(true);
+                            if(chatRoomCubit.currentConversation!=null){
+                              await chatRoomCubit.changeTypingState(true);
                             }
                           }
                           else{
-                            if(appCubit.currentConversation!=null){
-                              await appCubit.changeTypingState(false);
+                            if(chatRoomCubit.currentConversation!=null){
+                              await chatRoomCubit.changeTypingState(false);
                             }
                           }
                         },
@@ -107,13 +107,14 @@ class ChatScreen extends StatelessWidget {
                       width: (MediaQuery.of(context).size.width-20)*0.15,
                       child: FloatingActionButton(onPressed: () async {
                         if(controller.text!=""){
-                          appCubit.sendMessage(controller.text);
+                          chatRoomCubit.sendMessage(controller.text);
                           controller.text="";
                         }
                       },child: Icon(Icons.send,size:15,),backgroundColor: Colors.blue,),
                     )
                   ],
                 ),
+                SizedBox(height:10),
               ],
             ),
           );

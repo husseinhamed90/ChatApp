@@ -4,6 +4,7 @@ import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubitStates.dart';
+import 'package:flutter/painting.dart';
 import '../Helpers/ResuableWidgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class FriendsList extends StatelessWidget {
           ConversationsCubit conversationCubit =ConversationsCubit.get(context);
           return SafeArea(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 23),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -31,11 +32,9 @@ class FriendsList extends StatelessWidget {
                       colors: [Color(0xffE5F7FF), Color(0xffFFFFFF)])),
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 20,
-                  ),
+
                   Container(
-                    height: 80,
+                    height: 60,
                     width: double.infinity,
                     child: Row(
                       textDirection: TextDirection.rtl,
@@ -52,30 +51,43 @@ class FriendsList extends StatelessWidget {
                             conversationCubit.changeSearchBarState();
                           },
                         ),
-                        SizedBox(width: 20,),
+                        SizedBox(width: 10,),
                         Expanded(
                           child: (!conversationCubit.isSearch)?Container(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Hello",
-                                  style: TextStyle(
-                                      fontSize: 18, color: Color(0xff8FAEF1)),
+                                Row(
+                                  children: [
+                                    Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(40),
+                                          border: Border.all(
+                                            color: Color(0xff3570EC),
+                                            width: 1.5,
+                                          )
+                                      ),
+                                      child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(40),
+                                          child: Image.network(
+                                            conversationCubit.currentUser.imagepath,
+                                            fit: BoxFit.fill,)),
+                                    ),
+                                    SizedBox(width: 15,),
+                                    Text(
+                                      conversationCubit.currentUser.name,
+                                      style: TextStyle(
+                                          color: Color(0xff3570EC), fontSize: 25,fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  conversationCubit.currentUser.name,
-                                  style: TextStyle(
-                                      color: Color(0xff3570EC), fontSize: 28),
-                                )
                               ],
                             ),
                           ):Container(
-                            height: 45,
+                            height: 50,
                             child: TextFormField(
                               onChanged: (value) async{
                                 if(value==""){
@@ -86,7 +98,7 @@ class FriendsList extends StatelessWidget {
                                 }
                               },
                               decoration: InputDecoration(
-                                labelText: "Enter User Name",
+                                labelText: "Enter Username",
                                 filled: true,
                                 fillColor: Colors.white,
                                 enabledBorder: const OutlineInputBorder(
@@ -112,11 +124,14 @@ class FriendsList extends StatelessWidget {
                             return Container(child: Center(child: Text("NO CONVERSATIONS FOUND")));
                           }
                           else{
-                            return ListView.builder(
-                              itemCount: snapshot.data.docs.length,
-                              itemBuilder: (context, index) {
-                                return buildSingleConversation(conversationCubit, snapshot, index, context,ChatRoomCubit.get(context),AuthCubit.get(context));
-                              },
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              child: ListView.builder(
+                                itemCount: snapshot.data.docs.length,
+                                itemBuilder: (context, index) {
+                                  return buildSingleConversation(conversationCubit, snapshot, index, context,ChatRoomCubit.get(context),AuthCubit.get(context));
+                                },
+                              ),
                             );
                           }
                         }
@@ -125,16 +140,21 @@ class FriendsList extends StatelessWidget {
                         }
 
                       },
-                    ) : (conversationCubit.searchList.length>0)?ListView.builder(
-                      itemCount:  conversationCubit.searchList.length,
-                      itemBuilder: (context, index) {
-                        return buildSingleItemInSearchList(conversationCubit, index, context,AuthCubit.get(context),ChatRoomCubit.get(context));
-                      },
-                    ):Container(
-                      child: Center(
-                        child: Text("NO USERS FOUND WITH THIS NAME"),
+                    ) :
+                      (conversationCubit.searchList.length>0)?
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ListView.builder(
+                          itemCount:  conversationCubit.searchList.length,
+                          itemBuilder: (context, index) {
+                            return buildSingleItemInSearchList(conversationCubit, index, context,AuthCubit.get(context),ChatRoomCubit.get(context));
+                          },
+                        ),
+                      ): Container(
+                        child: Center(
+                          child: Text("NO USERS FOUND WITH THIS NAME"),
+                        ),
                       ),
-                    ),
                   )
                 ],
               ),

@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:io';
+
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
@@ -8,6 +10,7 @@ import 'package:chatapp/Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:toast/toast.dart'as ss;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,27 +26,24 @@ class Register extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: PreferredSize(
-            child: CustomAppbar("اضافة مستخدم"),
+            child: CustomAppbar(title: "Create New Account"),
             preferredSize: Size.fromHeight(70),
           ),
           body: BlocConsumer<AuthCubit,AuthCubitStates>(
             listener: (context, state) {
 
               if(state is UserRegistered){
+                ss.Toast.show("The user has been successfully registered", context, duration: 2, gravity: ss.Toast.BOTTOM);
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FriendsList()));
               }
               else if(state is EmptyFieldRegistersState){
-                getSnackBar(context,"توجد حقول فارغة");
+                getSnackBar(context,"There are empty fields");
               }
               else if(state is AccountAlreadyExists){
-                getSnackBar(context,"هذا الاسم موجود مسبقا");
+                getSnackBar(context,"This name already exists");
               }
               else if(state is WeakPassword){
-                getSnackBar(context,"كلمة المرور ضعيفة");
-              }
-              else if(state is UserRegistered){
-                ss.Toast.show("تم تسجيل المستخدم بنجاج", context, duration: 2, gravity: ss.Toast.BOTTOM);
-                Navigator.pop(context);
+                getSnackBar(context,"weak password");
               }
             },
             builder: (context, state) {
@@ -67,6 +67,29 @@ class Register extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        InkWell(
+                          onTap: () {
+                            appCubit.capturePhoto(imageSource: ImageSource.gallery);
+                          },
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            alignment: Alignment.bottomRight,
+                            child:    Padding(
+                              padding: const EdgeInsets.all(15),
+                              child: CircleAvatar(radius: 15,backgroundColor: Colors.blue,child: Icon(appCubit.imageFile==null?Icons.add:Icons.edit,size: 20,color: Colors.white,)),
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: appCubit.imageFile==null?
+                                  AssetImage("images/defaultImage.png"):FileImage(File(appCubit.imageFile.path)),
+                                  fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 30,),
                         Container(
                           width: MediaQuery.of(context).size.width-50,
                           child: TextFormField(
@@ -74,7 +97,7 @@ class Register extends StatelessWidget {
                             decoration: InputDecoration(
                                 border: new OutlineInputBorder(
                                     borderSide: new BorderSide(color: Colors.teal)),
-                                labelText: "اسم المستخدم"
+                                labelText: "Username"
                             ),
                           ),
                         ),
@@ -87,7 +110,7 @@ class Register extends StatelessWidget {
                             decoration: InputDecoration(
                                 border: new OutlineInputBorder(
                                     borderSide: new BorderSide(color: Colors.teal)),
-                                labelText: "كلمة السر",
+                                labelText: "Password",
                                 suffixIcon: IconButton(
                                   onPressed: () {
                                     appCubit.changePasswordVisibilityState();
@@ -98,12 +121,13 @@ class Register extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 30,),
-                        TextButton(onPressed: ()async{
+                        ElevatedButton(onPressed: ()async{
 
                           appCubit.register(username,password,ConversationsCubit.get(context),ChatRoomCubit.get(context));
-                        }, child: Text("تسجيل مستخدم جديد",style: TextStyle(
+                        }, child: Text("Create Account",style: TextStyle(
                             fontSize: 20
                         ),)),
+                        SizedBox(height: 30,),
                       ],
                     ),
                   ),

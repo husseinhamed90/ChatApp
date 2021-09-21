@@ -8,6 +8,7 @@ import 'package:chatapp/Models/User.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc/bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 
 class AuthCubit extends Cubit<AuthCubitStates> {
@@ -17,6 +18,14 @@ class AuthCubit extends Cubit<AuthCubitStates> {
   static AuthCubit get(BuildContext context) => BlocProvider.of(context);
 
   UserAccount currentUser;
+  bool isSecure=true;
+  final picker = ImagePicker();
+  XFile imageFile;
+  Future capturePhoto({ImageSource imageSource})async{
+      imageFile = await picker.pickImage(source: imageSource);
+      emit(CapturedPhotoDone());
+  }
+
 
   bool checkvalidatyofinputs(String username,String password){
     if(username == "" || password == ""){
@@ -59,8 +68,10 @@ class AuthCubit extends Cubit<AuthCubitStates> {
 
   void resetTextVisibilityState(){
     isSecure = true;
+    imageFile=null;
     emit(TextVisibilityStateChanged());
   }
+
 
   Future<void> loginSuccessful(UserCredential userCredential, ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
     UserAccount newUser = await getUserAccountInformation(userCredential);
@@ -75,7 +86,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
       emit(NoUserFound());
     }
   }
-  bool isSecure=true;
+
 
   void changePasswordVisibilityState(){
     isSecure=!isSecure;
@@ -89,7 +100,8 @@ class AuthCubit extends Cubit<AuthCubitStates> {
 
 
   Future<void>createNewUser(UserAccount newUser,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit)async{
-    await FirebaseApiServices.createNewDocumentForNewUserInFirebase(newUser);
+    await FirebaseApiServices.createNewDocumentForNewUserInFirebase(newUser,imageFile);
+    imageFile=null;
     currentUser=newUser;
     chatRoomCubit.setCurrentUser(currentUser);
     conversationsCubit.setCurrentUser(newUser);
@@ -99,8 +111,8 @@ class AuthCubit extends Cubit<AuthCubitStates> {
   Future<void>registerNewUser(TextEditingController username, TextEditingController password,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit)async{
     try {
       emit(LoadDataFromFirebase());
-      UserAccount newuser =await createAccountInFireBaeAuthentication(username,password);
-      await createNewUser(newuser,conversationsCubit,chatRoomCubit);
+      UserAccount newUser =await createAccountInFireBaeAuthentication(username,password);
+      await createNewUser(newUser,conversationsCubit,chatRoomCubit);
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

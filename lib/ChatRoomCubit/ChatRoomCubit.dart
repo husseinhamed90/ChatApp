@@ -8,6 +8,7 @@ import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
@@ -42,7 +43,9 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
   Future sendMessage(String massage)async{
     resetPageSize();
-    Message newMessage =Message(massage, DateTime.now().toString(), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
+
+    print( DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()));
+    Message newMessage =Message(massage, DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
     if(currentConversation==null){
      List<Message>messages=[];
      messages.add(newMessage);

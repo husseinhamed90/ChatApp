@@ -25,3 +25,5 @@ class NoUserFound extends  AuthCubitStates{}
 class PasswordVisibilityState extends AuthCubitStates{}
 
 class TextVisibilityStateChanged extends AuthCubitStates{}
+
+class CapturedPhotoDone extends AuthCubitStates{}
