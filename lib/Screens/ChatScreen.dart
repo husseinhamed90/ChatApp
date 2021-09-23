@@ -13,8 +13,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatelessWidget {
-  String name,userProfileImage;
-  ChatScreen(this.name,this.userProfileImage);
+  String name;
+  bool isFromNotification=false;
+  ChatScreen(this.name,{this.isFromNotification});
 
   TextEditingController controller=new TextEditingController();
   @override
@@ -22,7 +23,7 @@ class ChatScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: PreferredSize(
-        child: CustomAppbar(title: name,userProfileImage: userProfileImage,),
+        child: CustomAppbar(title: name,isFromNotification: isFromNotification),
         preferredSize: Size.fromHeight(65),
       ),
       body:BlocConsumer<ChatRoomCubit,ChatRoomCubitStates>(

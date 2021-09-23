@@ -1,10 +1,17 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:convert';
+
 import 'package:chatapp/AuthCubit/AuthCubit.dart';
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import 'package:chatapp/Models/User.dart';
+import 'package:chatapp/Network/remote/NotificationApi.dart';
+import 'package:chatapp/Screens/ChatScreen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
@@ -13,8 +20,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Login extends StatelessWidget {
 
+  UserAccount comingMessageSender;
+  Login({this.comingMessageSender});
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +33,20 @@ class Login extends StatelessWidget {
         body:  BlocConsumer<AuthCubit,AuthCubitStates>(
           listener: (context, state) async {
             if(state is GetUserIDDate){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsList()));
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              String vv=(prefs.get('openedMessage') ?? "");
+              if(vv!=""){
+                Map valueMap = json.decode(vv);
+                comingMessageSender=UserAccount.fromJson(valueMap);
+              }
+              if(comingMessageSender==null){
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FriendsList()));
+              }
+              else{
+                ChatRoomCubit.get(context).setChosenUser(comingMessageSender);
+                await prefs.setString("openedMessage","");
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatScreen(comingMessageSender.name,isFromNotification: true,)));
+              }
             }
             else if(state is InvalidUser){
               getSnackBar(context,"The password or username is incorrect");
@@ -90,6 +113,7 @@ class Login extends StatelessWidget {
                           ),
                           SizedBox(height: 30,),
                           TextButton(onPressed: ()async{
+
                             await appCubit.loginWithUsernameAndPassword(username.text,password.text,ConversationsCubit.get(context),ChatRoomCubit.get(context));
                           }, child: Text("Log in",style: TextStyle(
                               fontSize: 20,fontWeight: FontWeight.bold

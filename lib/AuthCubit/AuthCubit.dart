@@ -5,6 +5,7 @@ import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chatapp/Models/User.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc/bloc.dart';
@@ -25,7 +26,6 @@ class AuthCubit extends Cubit<AuthCubitStates> {
       imageFile = await picker.pickImage(source: imageSource);
       emit(CapturedPhotoDone());
   }
-
 
   bool checkvalidatyofinputs(String username,String password){
     if(username == "" || password == ""){
@@ -75,6 +75,15 @@ class AuthCubit extends Cubit<AuthCubitStates> {
 
   Future<void> loginSuccessful(UserCredential userCredential, ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
     UserAccount newUser = await getUserAccountInformation(userCredential);
+
+    print("loginSuccessful");
+    String token =await FirebaseMessaging.instance.getToken();
+    await FirebaseFirestore.instance.collection("Tokens").where("token",isEqualTo: token).get().then((value) {
+      value.docs.forEach((element) async {
+        await FirebaseFirestore.instance.collection("Tokens").doc(element.id).delete();
+      });
+    });
+    await FirebaseFirestore.instance.collection("Tokens").doc(newUser.id).set({"token":token});
     if(newUser!=null){
       currentUser=newUser;
       isSecure=true;
@@ -95,7 +104,16 @@ class AuthCubit extends Cubit<AuthCubitStates> {
 
   Future<UserAccount>createAccountInFireBaeAuthentication(TextEditingController username, TextEditingController password)async{
     UserCredential userCredential= await FirebaseApiServices.createUserInFirebase(username.text, password.text);
-    return UserAccount(username.text, password.text, 'user', userCredential.user.uid);
+    String token =await FirebaseMessaging.instance.getToken();
+    print(token);
+    await FirebaseFirestore.instance.collection("Tokens").where("token",isEqualTo: token).get().then((value) {
+      value.docs.forEach((element) async {
+        print(element.data());
+        await FirebaseFirestore.instance.collection("Tokens").doc(element.id).delete();
+      });
+    });
+    await FirebaseFirestore.instance.collection("Tokens").doc(userCredential.user.uid).set({"token":token});
+    return UserAccount(name: username.text, password: password.text, userType: 'user', id: userCredential.user.uid,token: token);
   }
 
 

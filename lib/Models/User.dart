@@ -5,6 +5,7 @@ class UserAccount{
   String password;
   String userType;
   String id;
+  String token;
   String isfirsttime;
   String isonline;
   String location;
@@ -13,13 +14,14 @@ class UserAccount{
 
 
 
-  UserAccount(this.name, this.password, this.userType,this.id,[this.isfirsttime="true",this.isonline="false"]);
+  UserAccount({this.name, this.password, this.userType,this.id,this.token,this.isfirsttime="true",this.isonline="false"});
 
   UserAccount.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     password = json['password'];
     userType =json['usertype'];
     id=json['id'];
+    token=json['token'];
     isfirsttime=json['isfirsttime'];
     imagepath =json['image'];
     isonline=json['isonline'];
@@ -31,6 +33,7 @@ class UserAccount{
     data['password'] = this.password;
     data['usertype']=this.userType;
     data['id']=this.id;
+    data['token']=this.token;
     data['image']=this.imagepath;
     data['isfirsttime']=this.isfirsttime;
     data['isonline']=this.isonline;

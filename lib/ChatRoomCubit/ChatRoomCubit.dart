@@ -5,6 +5,7 @@ import 'package:chatapp/Models/Conversation.dart';
 import 'package:chatapp/Models/Message.dart';
 import 'package:chatapp/Models/User.dart';
 import 'package:chatapp/Network/remote/FirebaseApi.dart';
+import 'package:chatapp/Network/remote/NotificationApi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,7 +32,7 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
   void setChosenUser(UserAccount user){
     chosenUser=user;
-    emit(CurrentUserUpdated());
+    emit(ChosenUserUpdated());
   }
 
   Future setChosenUserAndCurrentConversation(UserAccount chosen,Conversation conversation,AuthCubit appCubit)async{
@@ -48,10 +49,13 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
     Message newMessage =Message(massage, DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
     if(currentConversation==null){
      List<Message>messages=[];
+
      messages.add(newMessage);
      await addnewconversation(messages);
     }
     await FirebaseApiServices.updateMessagesInFirebase(newMessage,currentUser.id,chosenUser.id);
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection("Tokens").doc(chosenUser.id).get();
+    await NotificationApi.sendNotification(message: newMessage,receiverToken: documentSnapshot.data()['token'],currentAccount: currentUser);
   }
 
 

@@ -8,6 +8,8 @@ class NewConversationAddedSuccessfully extends ChatRoomCubitStates{}
 
 class CurrentUserUpdated extends ChatRoomCubitStates{}
 
+class ChosenUserUpdated extends ChatRoomCubitStates{}
+
 class IncreasePageSizeState extends ChatRoomCubitStates{}
 
 class ResetPageSizeState extends ChatRoomCubitStates{}

@@ -106,7 +106,6 @@ class FirebaseApiServices{
     else{
       newUser.imagepath="https://o.remove.bg/downloads/9cf41bbf-1ae4-4c98-9acd-2d11e0af5571/image-removebg-preview.png";
     }
-
     await usersCollection.doc(newUser.id).set(newUser.toJson());
   }
 

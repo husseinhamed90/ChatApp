@@ -15,7 +15,7 @@ InkWell buildSingleItemInSearchList(ConversationsCubit conversationsCubit, int i
   return InkWell(
     onTap: () {
       conversationsCubit.setChosenUser(conversationsCubit.searchList[index],chatRoomCubit);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(conversationsCubit.chosenUser.name,conversationsCubit.chosenUser.imagepath),));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(conversationsCubit.chosenUser.name,),));
       conversationsCubit.changeSearchBarState();
     },
     child: AutoSizeText(
@@ -83,7 +83,7 @@ InkWell buildSingleConversation(ConversationsCubit conversationsCubit, AsyncSnap
   return InkWell(
     onTap: () {
       conversationsCubit.setChosenUser(Conversation.fromJson(snapshot.data.docs[index].data()).secondPerson,chatRoomCubit,conversation: Conversation.fromJson(snapshot.data.docs[index].data()));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(conversationsCubit.chosenUser.name,conversationsCubit.chosenUser.imagepath)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(conversationsCubit.chosenUser.name)));
     },
     child: Container(
       height: 70,
