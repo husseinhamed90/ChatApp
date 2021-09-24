@@ -8,9 +8,7 @@ import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:chatapp/Network/remote/NotificationApi.dart';
 import 'package:chatapp/Screens/ChatScreen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'Screens/Login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -19,41 +17,41 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
+
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Firebase.initializeApp();
-
   await SharedPreferencesStorage.init();
+  FirebaseApiServices.init();
+  NotificationApi.init();
   await SharedPreferencesStorage.setDeviceTokenIfNotStoredInLocalStorage();
-   FirebaseMessaging.onMessageOpenedApp.listen((message) async{
-     await SharedPreferencesStorage.setOpenedMessageFromNotification( message);
-
-     if(AuthCubit.get(navigatorKey.currentState.context).currentUser!=null){
-       openChatWhenAppInRecentAppsMenu();
-     }
-   });
+  await listenForComingMessages();
   runApp(MyApp());
 }
 
-
+Future<void> listenForComingMessages() async {
+    FirebaseMessaging.onMessageOpenedApp.listen((message) async{
+    await SharedPreferencesStorage.setLastOpenedMessageFromNotification(message);
+    if(AuthCubit.get(navigatorKey.currentState.context).currentUser!=null){
+      openChatWhenAppInRecentAppsMenu();
+    }
+  });
+}
 
 void openChatWhenAppInRecentAppsMenu() {
   String openedMessage = SharedPreferencesStorage.getOpenedMessageFromSharedPreferences();
-  Map valueMap = json.decode(openedMessage);
-  ChatRoomCubit.get(navigatorKey.currentState.context).setChosenUser(UserAccount.fromJson(valueMap));
-  Navigator.push(navigatorKey.currentState.context, MaterialPageRoute(
-        builder: (context) => ChatScreen(UserAccount.fromJson(valueMap).name,isFromNotification: true,),));
+  Map openedMessageMap = json.decode(openedMessage);
+  ChatRoomCubit.get(navigatorKey.currentState.context).setChosenUser(UserAccount.fromJson(openedMessageMap));
+  Navigator.push(navigatorKey.currentState.context, MaterialPageRoute( builder: (context) => ChatScreen(UserAccount.fromJson(openedMessageMap).name,isFromNotification: true,),));
 }
-
-
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    FirebaseApiServices.init();
-    NotificationApi.init();
+
     return MultiProvider(
       providers: [
         BlocProvider(create: (_) => AuthCubit(),),

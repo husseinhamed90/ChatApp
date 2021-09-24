@@ -11,9 +11,7 @@ import 'package:path/path.dart' as p;
 
 class FirebaseApiServices{
   static CollectionReference usersCollection;
-
   static init(){
-    FirebaseApiServices();
     usersCollection = FirebaseFirestore.instance.collection('Users');
   }
 
@@ -122,5 +120,7 @@ class FirebaseApiServices{
     });
     return account;
   }
+
+  static Future<DocumentSnapshot> getReceiverTokenDocumentFromFirebase(String chosenUserId) async => await FirebaseFirestore.instance.collection("Tokens").doc(chosenUserId).get();
 
 }

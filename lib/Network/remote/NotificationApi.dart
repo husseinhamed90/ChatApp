@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 
 class NotificationApi {
   static Dio dio;
+
   static init() {
     dio = Dio();
   }
@@ -28,9 +29,9 @@ class NotificationApi {
             "comingMessageSender":currentAccount.toJson()
           }
         },
-        options:
-            Options(contentType: "application/json", method: "POST", headers: {
+        options: Options(contentType: "application/json", method: "POST", headers: {
           "Authorization": "key=$authorizationKey"
-        }));
+        })
+    );
   }
 }

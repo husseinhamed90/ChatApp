@@ -48,14 +48,14 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
     Message newMessage =Message(massage, DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
     if(currentConversation==null){
      List<Message>messages=[];
-
      messages.add(newMessage);
      await addnewconversation(messages);
     }
     await FirebaseApiServices.updateMessagesInFirebase(newMessage,currentUser.id,chosenUser.id);
-    DocumentSnapshot receiverToken = await FirebaseFirestore.instance.collection("Tokens").doc(chosenUser.id).get();
+    DocumentSnapshot receiverToken = await FirebaseApiServices.getReceiverTokenDocumentFromFirebase(chosenUser.id);
     await NotificationApi.sendNotification(message: newMessage,receiverToken: receiverToken.data()['token'],currentAccount: currentUser);
   }
+
 
 
 

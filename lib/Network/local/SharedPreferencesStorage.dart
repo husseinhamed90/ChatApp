@@ -2,10 +2,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesStorage{
+
   static SharedPreferences prefs;
 
   static init()async{
-    print("init shared");
     prefs=  await SharedPreferences.getInstance();
   }
 
@@ -15,16 +15,18 @@ class SharedPreferencesStorage{
       await prefs.setString("deviceToken", deviceToken);
     }
   }
-  static Future<void> setOpenedMessageFromNotification(RemoteMessage message) async {
+  static Future<void> setLastOpenedMessageFromNotification(RemoteMessage message) async {
     await prefs.setString("openedMessage", message.data['comingMessageSender'].toString());
   }
 
   static String getOpenedMessageFromSharedPreferences() {
-    String openedMessage=(prefs.get('openedMessage') ?? "");
-    return openedMessage;
+    return (prefs.get('openedMessage') ?? "");
   }
+
   static String getDeviceTokenFromSharedPreferences() {
     return prefs.get('deviceToken') ?? "";
   }
-
+  static  Future<void> resetOpenedMessageInSharedPreferences() async {
+    await prefs.setString("openedMessage","");
+  }
 }

@@ -7,11 +7,9 @@ import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
 import 'package:chatapp/Models/User.dart';
-import 'package:chatapp/Network/remote/NotificationApi.dart';
+import 'package:chatapp/Network/local/SharedPreferencesStorage.dart';
 import 'package:chatapp/Screens/ChatScreen.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Screens/FriendsList.dart';
 import 'package:chatapp/Screens/Register.dart';
@@ -21,30 +19,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class Login extends StatelessWidget {
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
         body:  BlocConsumer<AuthCubit,AuthCubitStates>(
           listener: (context, state) async {
             if(state is GetUserIDDate){
-              UserAccount comingMessageSender;
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              String openedMessage=(prefs.get('openedMessage') ?? "");
-              if(openedMessage!=""){
-                Map valueMap = json.decode(openedMessage);
-                comingMessageSender=UserAccount.fromJson(valueMap);
-              }
-              if(comingMessageSender==null){
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FriendsList()));
-              }
-              else{
-                ChatRoomCubit.get(context).setChosenUser(comingMessageSender);
-                await prefs.setString("openedMessage","");
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatScreen(comingMessageSender.name,isFromNotification: true,)));
-              }
+              UserAccount comingMessageSender = getSenderOfComingMessage();
+              await goToNextPageBasedOnComingMessageSender(comingMessageSender, context);
             }
             else if(state is InvalidUser){
               getSnackBar(context,"The password or username is incorrect");
@@ -132,5 +114,26 @@ class Login extends StatelessWidget {
           },
         )
     );
+  }
+
+  Future<void> goToNextPageBasedOnComingMessageSender(UserAccount comingMessageSender, BuildContext context) async {
+    if(comingMessageSender==null){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FriendsList()));
+    }
+    else{
+      ChatRoomCubit.get(context).setChosenUser(comingMessageSender);
+      await SharedPreferencesStorage.resetOpenedMessageInSharedPreferences();
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ChatScreen(comingMessageSender.name,isFromNotification: true,)));
+    }
+  }
+
+  UserAccount getSenderOfComingMessage() {
+    UserAccount comingMessageSender;
+     String openedMessage = SharedPreferencesStorage.getOpenedMessageFromSharedPreferences();
+    if(openedMessage!=""){
+      Map openedMessageMap = json.decode(openedMessage);
+      comingMessageSender=UserAccount.fromJson(openedMessageMap);
+    }
+    return comingMessageSender;
   }
 }

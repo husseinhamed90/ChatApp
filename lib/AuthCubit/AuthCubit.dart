@@ -19,8 +19,8 @@ class AuthCubit extends Cubit<AuthCubitStates> {
   AuthCubit() : super(InitialState());
 
   static AuthCubit get(BuildContext context) => BlocProvider.of(context);
-
   UserAccount currentUser;
+  String deviceToken;
   bool isSecure=true;
   final picker = ImagePicker();
   XFile imageFile;
@@ -29,7 +29,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
       emit(CapturedPhotoDone());
   }
 
-  bool checkvalidatyofinputs(String username,String password){
+  bool checkForValidityOfInputs(String username,String password){
     if(username == "" || password == ""){
       return false;
     }
@@ -50,7 +50,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
 
   Future<void> loginWithUsernameAndPassword(String username, String password,ConversationsCubit conversationsCubit,ChatRoomCubit chatRoomCubit) async {
     emit(LoginIsStart());
-    if (!checkvalidatyofinputs(username,password)) {
+    if (!checkForValidityOfInputs(username,password)) {
       emit(EmptyFieldsFoundState());
     }
     else {
@@ -73,7 +73,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
     imageFile=null;
     emit(TextVisibilityStateChanged());
   }
-  String deviceToken;
+
 
   Future<void> loginSuccessful(UserCredential userCredential, ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
     UserAccount newUser = await getUserAccountInformation(userCredential);
@@ -144,7 +144,7 @@ class AuthCubit extends Cubit<AuthCubitStates> {
   }
 
   Future register(TextEditingController username, TextEditingController password,ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
-    if (!checkvalidatyofinputs(username.text, password.text)) {
+    if (!checkForValidityOfInputs(username.text, password.text)) {
       emit(EmptyFieldRegistersState());
     }
     else {
