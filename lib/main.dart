@@ -3,6 +3,7 @@ import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
 import 'package:chatapp/Helpers/ResuableWidgets.dart';
 import 'package:chatapp/Models/User.dart';
+import 'package:chatapp/Network/local/SharedPreferencesStorage.dart';
 import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:chatapp/Network/remote/NotificationApi.dart';
 import 'package:chatapp/Screens/ChatScreen.dart';
@@ -17,61 +18,38 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("on background");
-
-
-}
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   await Firebase.initializeApp();
 
-  String token =await FirebaseMessaging.instance.getToken();
-  print(token);
-  // ignore: missing_return
-  FirebaseMessaging.onBackgroundMessage((message) {
-
-  });
-
-   UserAccount messageSender;
+  await SharedPreferencesStorage.init();
+  await SharedPreferencesStorage.setDeviceTokenIfNotStoredInLocalStorage();
    FirebaseMessaging.onMessageOpenedApp.listen((message) async{
-     SharedPreferences prefs = await SharedPreferences.getInstance();
-     await prefs.setString("openedMessage", message.data['comingMessageSender'].toString());
-     String vv=(prefs.get('openedMessage') ?? "");
-     Map valueMap = json.decode(vv);
+     await SharedPreferencesStorage.setOpenedMessageFromNotification( message);
+
      if(AuthCubit.get(navigatorKey.currentState.context).currentUser!=null){
-       ChatRoomCubit.get(navigatorKey.currentState.context).setChosenUser(UserAccount.fromJson(valueMap));
-       Navigator.push(
-           navigatorKey.currentState.context,
-           MaterialPageRoute(
-             builder: (context) => ChatScreen(UserAccount.fromJson(valueMap).name,isFromNotification: true,),));
+       openChatWhenAppInRecentAppsMenu();
      }
    });
-
-  FirebaseMessaging.onMessage.listen((message) async{
-    if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification.title}');
-    }
-    Fluttertoast.showToast(
-        msg: "on background",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.green,
-        fontSize: 16.0
-    );
-  });
-
-  runApp(MyApp(messageSender));
+  runApp(MyApp());
 }
 
+
+
+void openChatWhenAppInRecentAppsMenu() {
+  String openedMessage = SharedPreferencesStorage.getOpenedMessageFromSharedPreferences();
+  Map valueMap = json.decode(openedMessage);
+  ChatRoomCubit.get(navigatorKey.currentState.context).setChosenUser(UserAccount.fromJson(valueMap));
+  Navigator.push(navigatorKey.currentState.context, MaterialPageRoute(
+        builder: (context) => ChatScreen(UserAccount.fromJson(valueMap).name,isFromNotification: true,),));
+}
+
+
+
 class MyApp extends StatelessWidget {
-  UserAccount comingMessage;
-  MyApp(this.comingMessage);
   @override
   Widget build(BuildContext context) {
     FirebaseApiServices.init();
@@ -89,7 +67,7 @@ class MyApp extends StatelessWidget {
             Theme.of(context).textTheme,
           ),
         ),
-        home: Login(comingMessageSender: comingMessage,),
+        home: Login(),
         debugShowCheckedModeBanner: false,
       )
     );

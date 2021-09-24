@@ -19,9 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Login extends StatelessWidget {
-
-  UserAccount comingMessageSender;
-  Login({this.comingMessageSender});
   TextEditingController username = new TextEditingController();
   TextEditingController password = new TextEditingController();
 
@@ -33,10 +30,11 @@ class Login extends StatelessWidget {
         body:  BlocConsumer<AuthCubit,AuthCubitStates>(
           listener: (context, state) async {
             if(state is GetUserIDDate){
+              UserAccount comingMessageSender;
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              String vv=(prefs.get('openedMessage') ?? "");
-              if(vv!=""){
-                Map valueMap = json.decode(vv);
+              String openedMessage=(prefs.get('openedMessage') ?? "");
+              if(openedMessage!=""){
+                Map valueMap = json.decode(openedMessage);
                 comingMessageSender=UserAccount.fromJson(valueMap);
               }
               if(comingMessageSender==null){

@@ -1,6 +1,7 @@
 import 'package:chatapp/AuthCubit/AuthCubitStates.dart';
 import 'package:chatapp/ChatRoomCubit/ChatRoomCubit.dart';
 import 'package:chatapp/ConversationsCubit/ConversationsCubit.dart';
+import 'package:chatapp/Network/local/SharedPreferencesStorage.dart';
 import 'package:chatapp/Network/remote/FirebaseApi.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc/bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class AuthCubit extends Cubit<AuthCubitStates> {
@@ -71,19 +73,17 @@ class AuthCubit extends Cubit<AuthCubitStates> {
     imageFile=null;
     emit(TextVisibilityStateChanged());
   }
-
+  String deviceToken;
 
   Future<void> loginSuccessful(UserCredential userCredential, ConversationsCubit conversationsCubit, ChatRoomCubit chatRoomCubit) async {
     UserAccount newUser = await getUserAccountInformation(userCredential);
-
-    print("loginSuccessful");
-    String token =await FirebaseMessaging.instance.getToken();
-    await FirebaseFirestore.instance.collection("Tokens").where("token",isEqualTo: token).get().then((value) {
+    deviceToken = SharedPreferencesStorage.getDeviceTokenFromSharedPreferences();
+    await FirebaseFirestore.instance.collection("Tokens").where("token",isEqualTo: deviceToken).get().then((value) {
       value.docs.forEach((element) async {
         await FirebaseFirestore.instance.collection("Tokens").doc(element.id).delete();
       });
     });
-    await FirebaseFirestore.instance.collection("Tokens").doc(newUser.id).set({"token":token});
+    await FirebaseFirestore.instance.collection("Tokens").doc(newUser.id).set({"token":deviceToken});
     if(newUser!=null){
       currentUser=newUser;
       isSecure=true;
@@ -95,7 +95,6 @@ class AuthCubit extends Cubit<AuthCubitStates> {
       emit(NoUserFound());
     }
   }
-
 
   void changePasswordVisibilityState(){
     isSecure=!isSecure;

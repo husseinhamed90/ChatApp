@@ -44,7 +44,6 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
 
   Future sendMessage(String massage)async{
     resetPageSize();
-
     print( DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()));
     Message newMessage =Message(massage, DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now()), DateTime.now().millisecondsSinceEpoch.toString(),currentUser.id);
     if(currentConversation==null){
@@ -54,8 +53,8 @@ class ChatRoomCubit extends Cubit<ChatRoomCubitStates> {
      await addnewconversation(messages);
     }
     await FirebaseApiServices.updateMessagesInFirebase(newMessage,currentUser.id,chosenUser.id);
-    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection("Tokens").doc(chosenUser.id).get();
-    await NotificationApi.sendNotification(message: newMessage,receiverToken: documentSnapshot.data()['token'],currentAccount: currentUser);
+    DocumentSnapshot receiverToken = await FirebaseFirestore.instance.collection("Tokens").doc(chosenUser.id).get();
+    await NotificationApi.sendNotification(message: newMessage,receiverToken: receiverToken.data()['token'],currentAccount: currentUser);
   }
 
 
